@@ -1,0 +1,135 @@
+[
+  {
+    "objectID": "index.html#overview",
+    "href": "index.html#overview",
+    "title": "",
+    "section": "Overview",
+    "text": "Overview\nThis report contains a pipeline for cleaning and validation of the SISVAN nutritional dataset. The main goal is to provide a reliable workflow for processing and analyzing nutritional data from Brazil’s Food and Nutrition Surveillance System (SISVAN).\n\n\n\n\n\n\nClick here to access a Python version of the pipeline.\n\n\n\n\n\n\n\n\n\nThe pipeline is still under development and may not be fully functional.\nThis warning will be removed once the pipeline is complete."
+  },
+  {
+    "objectID": "index.html#problem",
+    "href": "index.html#problem",
+    "title": "",
+    "section": "Problem",
+    "text": "Problem\nThe Food and Nutrition Surveillance System (SISVAN) is a strategic tool for monitoring the nutritional status of the Brazilian population, particularly those served by the Unified Health System (SUS). However, despite its broad scope and importance, the anthropometric data recorded in SISVAN often suffer from quality issues that limit their usefulness for rigorous analyses and evidence-based policymaking (Sistema de Vigilância Alimentar e Nutricional, n.d.).\nMultiple factors contribute to these quality concerns, including the lack of standardized measurement protocols, variability in staff training, inconsistencies in data entry and processing, and incomplete population coverage (Bagni & Barros, 2015; Corsi et al., 2017; Perumal et al., 2020). To assess and improve data quality, several indicators have been proposed and applied, such as population coverage (Mourão et al., 2020; Nascimento et al., 2017), completeness of birth dates and anthropometric measurements (Finaret & Hutchinson, 2018; Nannan et al., 2019), digit preference for age, height, and weight (Bopp & Faeh, 2008; Lyons-Amos & Stones, 2017), the percentage of biologically implausible values (Lawman et al., 2015), and the dispersion and distribution of standardized weight and height measurements (Mei, 2007; Perumal et al., 2020).\nIn light of this, there is a clear need for a systematic pipeline for cleaning and validating SISVAN data, aiming to identify, correct, or remove problematic records and ensure greater consistency, completeness, and plausibility of the information for use in research and public policy."
+  },
+  {
+    "objectID": "index.html#methods",
+    "href": "index.html#methods",
+    "title": "",
+    "section": "Methods",
+    "text": "Methods\nSource of Data\nThe data used in this analysis were sourced from Brazil’s Food and Nutrition Surveillance System (SISVAN), specifically the nutritional status dataset (Sistema de Vigilância Alimentar e Nutricional, n.d.). For technical documentation about the dataset, see the technical note (available in Portuguese).\nThe dataset is publicly available through the Open Data SUS.\nData Munging Approach\nData munging followed the data science workflow outlined by Wickham et al. (2023), as illustrated in Figure 1. All processes were made using the R programming language (R Core Team, n.d.) and several R packages.\nThe tidyverse and rOpenSci peer-reviewed package ecosystem and other R packages adherents of the tidy tools manifesto (Wickham, 2023) were prioritized. All processes were made in order to provide result transparency and reproducibility.\n\n\nFigure 1: Data science workflow created by Wickham, Çetinkaya-Runde, and Grolemund.\n\n\nSource: Reproduced from Wickham et al. (2023).\n\n\n\nThe Tidyverse code style guide and design principles were followed to ensure consistency and enhance readability.\nAll the analyses are fully reproducible and can be run again at any time. See the README file in the code repository to learn how to run them.\nData Munging Procedures\nThe data cleaning process follows the methodological criteria described by (Silva et al., 2023), which focuses on analyzing anthropometric data of Brazilian children:\n1 Chunked Reading\nProcessing large files in 100,000-row chunks to prevent memory overflows.\n2 Age Filtering\nSelection of children under 5 years of age (NU_IDADE_ANO \\(\\leq\\) 4), according to the scope of WHO growth curves.\n3 Removal of Incomplete Records\nExclusion of rows missing any of these critical fields:\n\nWeight (NU_PESO)\nHeight (NU_ALTURA)\nSex (SG_SEXO)\nAssessment date (DT_ACOMPANHAMENTO)\nMunicipality (CO_MUNICIPIO_IBGE)\n4 Duplicate Elimination\nBased on the combination of the variables:\n\nCO_PESSOA_SISVAN\nDT_ACOMPANHAMENTO\nNU_PESO\nNU_ALTURA\n5 Variable and Date Conversions\n\n\nNU_IDADE_ANO converted to complete months.\n\nDT_ACOMPANHAMENTO converted to datetime format.\nExtraction of YEAR and YEAR_MONTH (year and month of assessment).\nZ-score Calculation\nThe LMS (Lambda-Mu-Sigma) method from the (World Health Organization, 2006) is used.\n\nCalculated indicator: Weight-for-Age (WAZ).\n\nL, M, and S parameters vary by age (in months) and sex, following official WHO growth curves.\n\nApplied Formula\nFor \\(L \\neq 0\\):\n\\[\nz = \\frac{(X / M)^{L} - 1}{L \\times S}\n\\]\nFor \\(L = 0\\):\n\\[\nz = \\frac{\\ln(X / M)}{S}\n\\]\nWhere:\n\n\nX = Observed value (e.g., weight)\n\nM = Expected median for age and sex\n\nS = Coefficient of variation (relative standard deviation)\n\nL = Box-Cox parameter (skewness)\nData Aggregation\nData are aggregated by municipality and month (CO_MUNICIPIO_IBGE, YEAR_MONTH), with the following indicators:\n\nMean weight (MEAN_WEIGHT)\nMean height (MEAN_HEIGHT)\nMean age in months (MEAN_AGE_MONTHS)\nTotal assessments (NUM_ASSESSMENTS)\nMean WAZ z-score (MEAN_WAZ)"
+  },
+  {
+    "objectID": "index.html#setting-the-environment",
+    "href": "index.html#setting-the-environment",
+    "title": "",
+    "section": "Setting the Environment",
+    "text": "Setting the Environment\n\nlibrary(cli)\nlibrary(dplyr)\nlibrary(fpeek)\nlibrary(here)\nlibrary(lubridate)\nlibrary(readr)\nlibrary(rutils) # github.com/danielvartan/rutils\nlibrary(tidyr)\nlibrary(utils)\nlibrary(vroom)\n\n\nsource(here::here(\"R\", \"waz.R\"))"
+  },
+  {
+    "objectID": "index.html#setting-variables",
+    "href": "index.html#setting-variables",
+    "title": "",
+    "section": "Setting Variables",
+    "text": "Setting Variables\n\nyear &lt;- 2023\n\n\nage_limits &lt;- c(0, 4)"
+  },
+  {
+    "objectID": "index.html#downloading-the-data",
+    "href": "index.html#downloading-the-data",
+    "title": "",
+    "section": "Downloading the Data",
+    "text": "Downloading the Data\n\nif (!dir.exists(here::here(\"data\"))) dir.create(\"data\")\n\n\nfile &lt;- here::here(\n  \"data\",\n  paste0(\"sisvan-nutritional-status-\", year, \"-raw.zip\")\n)\n\npaste0(\n    \"https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISVAN/\",\n    \"estado_nutricional/sisvan_estado_nutricional_\",\n    year,\n    \".zip\"\n  ) |&gt;\n  httr2::request() |&gt;\n  httr2::req_progress() |&gt;\n  httr2::req_perform(file)"
+  },
+  {
+    "objectID": "index.html#unzipping-the-data",
+    "href": "index.html#unzipping-the-data",
+    "title": "",
+    "section": "Unzipping the Data",
+    "text": "Unzipping the Data\n\nfile &lt;-\n  file |&gt;\n  utils::unzip(exdir = here::here(\"data\"), overwrite = TRUE)"
+  },
+  {
+    "objectID": "index.html#checking-data-dimensions",
+    "href": "index.html#checking-data-dimensions",
+    "title": "",
+    "section": "Checking Data Dimensions",
+    "text": "Checking Data Dimensions\n\ncols &lt;-\n  file |&gt;\n  readr::read_delim(\n    delim = \";\",\n    col_names = FALSE,\n    n_max = 1,\n    progress = FALSE\n  ) |&gt;\n  rutils::shush() |&gt;\n  ncol()\n\nrows &lt;- fpeek::peek_count_lines(file)\ncells &lt;- cols * rows\n\ncli::cli_inform(paste0(\n  \"The file has \",\n  \"{.strong {cli::col_red(prettyNum(cols, big.mark = ','))}} columns, \",\n  \"{.strong {cli::col_green(prettyNum(rows, big.mark = ','))}} rows, and \",\n  \"{.strong {cli::col_blue(prettyNum(cells, big.mark = ','))}} cells.\"\n))"
+  },
+  {
+    "objectID": "index.html#reading-and-filtering-the-data",
+    "href": "index.html#reading-and-filtering-the-data",
+    "title": "",
+    "section": "Reading and Filtering the Data",
+    "text": "Reading and Filtering the Data\n\ncol_names &lt;- c(\n  \"CO_ACOMPANHAMENTO\",\n  \"CO_PESSOA_SISVAN\",\n  \"ST_PARTICIPA_ANDI\",\n  \"CO_MUNICIPIO_IBGE\",\n  \"SG_UF\",\n  \"NO_MUNICIPIO\",\n  \"CO_CNES\",\n  \"NU_IDADE_ANO\",\n  \"NU_FASE_VIDA\",\n  \"DS_FASE_VIDA\",\n  \"SG_SEXO\",\n  \"CO_RACA_COR\",\n  \"DS_RACA_COR\",\n  \"CO_POVO_COMUNIDADE\",\n  \"DS_POVO_COMUNIDADE\",\n  \"CO_ESCOLARIDADE\",\n  \"DS_ESCOLARIDADE\",\n  \"DT_ACOMPANHAMENTO\",\n  \"NU_COMPETENCIA\",\n  \"NU_PESO\",\n  \"NU_ALTURA\",\n  \"DS_IMC\",\n  \"DS_IMC_PRE_GESTACIONAL\",\n  \"PESO X IDADE\",\n  \"PESO X ALTURA\",\n  \"CRI. ALTURA X IDADE\",\n  \"CRI. IMC X IDADE\",\n  \"ADO. ALTURA X IDADE\",\n  \"ADO. IMC X IDADE\",\n  \"CO_ESTADO_NUTRI_ADULTO\",\n  \"CO_ESTADO_NUTRI_IDOSO\",\n  \"CO_ESTADO_NUTRI_IMC_SEMGEST\",\n  \"CO_SISTEMA_ORIGEM_ACOMP\",\n  \"SISTEMA_ORIGEM_ACOMP\"\n)\n\n\nschema &lt;- vroom::cols(\n  CO_ACOMPANHAMENTO = vroom::col_character(),\n  CO_PESSOA_SISVAN = vroom::col_character(),\n  ST_PARTICIPA_ANDI = vroom::col_character(),\n  CO_MUNICIPIO_IBGE = vroom::col_integer(),\n  SG_UF = vroom::col_factor(),\n  NO_MUNICIPIO = vroom::col_character(), # ? vroom::col_factor()\n  CO_CNES = vroom::col_integer(),\n  NU_IDADE_ANO = vroom::col_integer(),\n  NU_FASE_VIDA = vroom::col_character(), # decimal mark = \".\" (double)\n  DS_FASE_VIDA = vroom::col_factor(),\n  SG_SEXO = vroom::col_factor(),\n  CO_RACA_COR = vroom::col_character(),\n  DS_RACA_COR = vroom::col_factor(),\n  CO_POVO_COMUNIDADE = vroom::col_integer(),\n  DS_POVO_COMUNIDADE = vroom::col_factor(),\n  CO_ESCOLARIDADE = vroom::col_character(),\n  DS_ESCOLARIDADE = vroom::col_factor(),\n  DT_ACOMPANHAMENTO = vroom::col_date(),\n  NU_COMPETENCIA = vroom::col_integer(),\n  NU_PESO = vroom::col_double(),\n  NU_ALTURA = vroom::col_integer(),\n  DS_IMC = vroom::col_double(),\n  DS_IMC_PRE_GESTACIONAL = vroom::col_character(), # decimal mark = \".\" (double)\n  \"PESO X IDADE\" = vroom::col_factor(),\n  \"PESO X ALTURA\" = vroom::col_factor(),\n  \"CRI. ALTURA X IDADE\" = vroom::col_factor(),\n  \"CRI. IMC X IDADE\" = vroom::col_factor(),\n  \"ADO. ALTURA X IDADE\" = vroom::col_factor(),\n  \"ADO. IMC X IDADE\" = vroom::col_factor(),\n  CO_ESTADO_NUTRI_ADULTO = vroom::col_factor(),\n  CO_ESTADO_NUTRI_IDOSO = vroom::col_factor(),\n  CO_ESTADO_NUTRI_IMC_SEMGEST = vroom::col_factor(),\n  CO_SISTEMA_ORIGEM_ACOMP = vroom::col_integer(),\n  SISTEMA_ORIGEM_ACOMP = vroom::col_factor()\n)\n\n\ndata &lt;-\n  vroom::vroom(\n    file = pipe(\n      paste(\n        \"awk -F ';' '{ if (\",\n        \"($8 &gt;= \", age_limits[1], \") && ($8 &lt;= \", age_limits[2], \")\",\n        \") { print } }'\",\n        file\n      )\n    ),\n    delim = \";\",\n    col_names = col_names,\n    col_types = schema,\n    col_select =  c(\n      \"CO_PESSOA_SISVAN\", \"DT_ACOMPANHAMENTO\", \"NU_PESO\", \"NU_ALTURA\",\n      \"NU_IDADE_ANO\", \"SG_SEXO\", \"CO_MUNICIPIO_IBGE\"\n    ),\n    id = NULL,\n    skip = 0,\n    n_max = Inf,\n    na = c(\"\", \"NA\"),\n    quote = \"\\\"\",\n    comment = \"\",\n    skip_empty_rows = TRUE,\n    trim_ws = TRUE,\n    escape_double = TRUE,\n    escape_backslash = FALSE,\n    locale = vroom::locale(\n      date_names = \"pt\",\n      date_format = \"%d/%m/%Y\",\n      time_format = \"%H:%M:%S\",\n      decimal_mark = \",\",\n      grouping_mark = \".\",\n      tz = \"America/Sao_Paulo\",\n      encoding = readr::guess_encoding(file)$encoding[1]\n    ),\n    guess_max = 100,\n    altrep = TRUE,\n    num_threads = vroom:::vroom_threads(),\n    progress = vroom::vroom_progress(),\n    show_col_types = NULL,\n    .name_repair = \"unique\"\n  )\n\n\ndata |&gt; dplyr::glimpse()\n#&gt; Rows: 7,034,414\n#&gt; Columns: 7\n#&gt; Warning: One or more parsing issues, call `problems()` on your data frame for\n#&gt; details, e.g.:\n#&gt;   dat &lt;- vroom(...)\n#&gt;   problems(dat)\n#&gt; $ CO_PESSOA_SISVAN  &lt;chr&gt; \"BF9D8CEA53745A96C7414C9A786FA493A92AEEEE\", \"C8D8…\n#&gt; $ DT_ACOMPANHAMENTO &lt;date&gt; 2023-01-06, 2023-01-27, 2023-01-26, 2023-01-30, …\n#&gt; $ NU_PESO           &lt;dbl&gt; 9.00, 12.20, 9.50, 15.00, NA, 7.57, 17.60, 13.00,…\n#&gt; $ NU_ALTURA         &lt;int&gt; 77, 95, 79, 105, 79, 65, 104, 75, 81, 70, 93, 98,…\n#&gt; $ NU_IDADE_ANO      &lt;int&gt; 1, 3, 1, 4, 1, 0, 3, 2, 1, 0, 2, 4, 0, 1, 4, 3, 2…\n#&gt; $ SG_SEXO           &lt;fct&gt; F, M, M, M, M, M, M, M, M, F, M, F, M, F, F, F, F…\n#&gt; $ CO_MUNICIPIO_IBGE &lt;int&gt; 210500, 270430, 171510, 317080, 315460, 350410, 2…"
+  },
+  {
+    "objectID": "index.html#removing-duplicates",
+    "href": "index.html#removing-duplicates",
+    "title": "",
+    "section": "Removing Duplicates",
+    "text": "Removing Duplicates\n\ndata &lt;-\n  data |&gt;\n  dplyr::distinct(\n    CO_PESSOA_SISVAN,\n    DT_ACOMPANHAMENTO,\n    NU_PESO,\n    NU_ALTURA,\n    .keep_all = TRUE\n  )"
+  },
+  {
+    "objectID": "index.html#tidying-and-transforming-the-data",
+    "href": "index.html#tidying-and-transforming-the-data",
+    "title": "",
+    "section": "Tidying and Transforming the Data",
+    "text": "Tidying and Transforming the Data\n\ndata &lt;-\n  data |&gt;\n  tidyr::drop_na(\n    CO_MUNICIPIO_IBGE,\n    SG_SEXO,\n    DT_ACOMPANHAMENTO,\n    NU_PESO,\n    NU_ALTURA\n  ) |&gt;\n  dplyr::mutate(\n    IDADE_MESES = NU_IDADE_ANO * 12,\n    ANO_MES = lubridate::month(DT_ACOMPANHAMENTO),\n    ANO = lubridate::year(DT_ACOMPANHAMENTO)\n    # WAZ = waz()\n  )\n\n\ndata |&gt; dplyr::glimpse()\n#&gt; Rows: 6,596,408\n#&gt; Columns: 10\n#&gt; $ CO_PESSOA_SISVAN  &lt;chr&gt; \"BF9D8CEA53745A96C7414C9A786FA493A92AEEEE\", \"C8D8…\n#&gt; $ DT_ACOMPANHAMENTO &lt;date&gt; 2023-01-06, 2023-01-27, 2023-01-26, 2023-01-30, …\n#&gt; $ NU_PESO           &lt;dbl&gt; 9.00, 12.20, 9.50, 15.00, 7.57, 17.60, 13.00, 10.…\n#&gt; $ NU_ALTURA         &lt;int&gt; 77, 95, 79, 105, 65, 104, 75, 81, 70, 93, 98, 75,…\n#&gt; $ NU_IDADE_ANO      &lt;int&gt; 1, 3, 1, 4, 0, 3, 2, 1, 0, 2, 4, 0, 1, 4, 3, 2, 4…\n#&gt; $ SG_SEXO           &lt;fct&gt; F, M, M, M, M, M, M, M, F, M, F, M, F, F, F, F, M…\n#&gt; $ CO_MUNICIPIO_IBGE &lt;int&gt; 210500, 270430, 171510, 317080, 350410, 260620, 2…\n#&gt; $ IDADE_MESES       &lt;dbl&gt; 12, 36, 12, 48, 0, 36, 24, 12, 0, 24, 48, 0, 12, …\n#&gt; $ ANO_MES           &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…\n#&gt; $ ANO               &lt;dbl&gt; 2023, 2023, 2023, 2023, 2023, 2023, 2023, 2023, 2…"
+  },
+  {
+    "objectID": "index.html#aggregating-the-data",
+    "href": "index.html#aggregating-the-data",
+    "title": "",
+    "section": "Aggregating the Data",
+    "text": "Aggregating the Data\n\ndata &lt;-\n  data |&gt;\n  dplyr::group_by(\n    CO_MUNICIPIO_IBGE,\n    ANO,\n    ANO_MES\n  ) |&gt;\n  dplyr::summarise(\n    NU_PESO = mean(NU_PESO, na.rm = TRUE),\n    NU_ALTURA = mean(NU_ALTURA, na.rm = TRUE),\n    IDADE_MESES = mean(IDADE_MESES, na.rm = TRUE),\n    CO_PESSOA_SISVAN = dplyr::n()\n  )\n#&gt; `summarise()` has grouped output by 'CO_MUNICIPIO_IBGE', 'ANO'. You can\n#&gt; override using the `.groups` argument.\n\n\ndata |&gt; dplyr::glimpse()\n#&gt; Rows: 64,296\n#&gt; Columns: 7\n#&gt; Groups: CO_MUNICIPIO_IBGE, ANO [5,569]\n#&gt; $ CO_MUNICIPIO_IBGE &lt;int&gt; 110001, 110001, 110001, 110001, 110001, 110001, 1…\n#&gt; $ ANO               &lt;dbl&gt; 2023, 2023, 2023, 2023, 2023, 2023, 2023, 2023, 2…\n#&gt; $ ANO_MES           &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3, 4…\n#&gt; $ NU_PESO           &lt;dbl&gt; 12.050000000, 8.994375000, 12.943543956, 13.68231…\n#&gt; $ NU_ALTURA         &lt;dbl&gt; 85.35000000, 75.25000000, 88.29120879, 91.6956521…\n#&gt; $ IDADE_MESES       &lt;dbl&gt; 20.40000000, 14.25000000, 23.86813187, 29.2173913…\n#&gt; $ CO_PESSOA_SISVAN  &lt;int&gt; 20, 16, 182, 69, 81, 56, 60, 59, 100, 113, 122, 1…"
+  },
+  {
+    "objectID": "index.html#renaming-the-variables",
+    "href": "index.html#renaming-the-variables",
+    "title": "",
+    "section": "Renaming the Variables",
+    "text": "Renaming the Variables\n\ndata &lt;-\n  data |&gt;\n  dplyr::rename(\n    PESO_MEDIO = NU_PESO,\n    ALTURA_MEDIA = NU_ALTURA,\n    IDADE_MEDIA_MES = IDADE_MESES,\n    NUM_ACOMPANHAMENTOS = CO_PESSOA_SISVAN\n  )\n\n\ndata |&gt; dplyr::glimpse()\n#&gt; Rows: 64,296\n#&gt; Columns: 7\n#&gt; Groups: CO_MUNICIPIO_IBGE, ANO [5,569]\n#&gt; $ CO_MUNICIPIO_IBGE   &lt;int&gt; 110001, 110001, 110001, 110001, 110001, 110001,…\n#&gt; $ ANO                 &lt;dbl&gt; 2023, 2023, 2023, 2023, 2023, 2023, 2023, 2023,…\n#&gt; $ ANO_MES             &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3,…\n#&gt; $ PESO_MEDIO          &lt;dbl&gt; 12.050000000, 8.994375000, 12.943543956, 13.682…\n#&gt; $ ALTURA_MEDIA        &lt;dbl&gt; 85.35000000, 75.25000000, 88.29120879, 91.69565…\n#&gt; $ IDADE_MEDIA_MES     &lt;dbl&gt; 20.40000000, 14.25000000, 23.86813187, 29.21739…\n#&gt; $ NUM_ACOMPANHAMENTOS &lt;int&gt; 20, 16, 182, 69, 81, 56, 60, 59, 100, 113, 122,…"
+  },
+  {
+    "objectID": "index.html#validating-the-data",
+    "href": "index.html#validating-the-data",
+    "title": "",
+    "section": "Validating the Data",
+    "text": "Validating the Data"
+  },
+  {
+    "objectID": "index.html#data-dictionary",
+    "href": "index.html#data-dictionary",
+    "title": "",
+    "section": "Data Dictionary",
+    "text": "Data Dictionary\n\ndata"
+  },
+  {
+    "objectID": "index.html#saving-the-valid-data",
+    "href": "index.html#saving-the-valid-data",
+    "title": "",
+    "section": "Saving the Valid Data",
+    "text": "Saving the Valid Data\n\ndata |&gt; write_csv(here(\"data\", \"sisvan-nutrional-status-valid.csv\"))\n\n\ndata |&gt; write_rds(here(\"data\", \"sisvan-nutrional-status-valid.rds\"))"
+  },
+  {
+    "objectID": "index.html#license",
+    "href": "index.html#license",
+    "title": "",
+    "section": "License",
+    "text": "License\n \nThe code in this repository is licensed under the MIT License, while the documents are available under the Creative Commons Attribution 4.0 International License."
+  },
+  {
+    "objectID": "index.html#how-to-cite",
+    "href": "index.html#how-to-cite",
+    "title": "",
+    "section": "How to Cite",
+    "text": "How to Cite\nTo cite this work, please use the following format:\nVartanian, D.; & Schettino, J. P. J. (2025). A pipeline for cleaning and validating SISVAN nutritional data [Report]. Sustentarea Research and Extension Group at the University of São Paulo. https://sustentarea.github.io/sisvan-nutritional-data/\nA BibTeX entry for LaTeX users is\n@techreport{vartanian2025,\n  title = {A pipeline for cleaning and validating SISVAN nutritional data},\n  author = {{Daniel Vartanian} and {João Pedro Junqueira Schettino}},\n  year = {2025},\n  address = {São Paulo},\n  institution = {Sustentarea Research and Extension Group at the University of São Paulo},\n  langid = {en},\n  url = {https://sustentarea.github.io/sisvan-nutritional-data/}\n}"
+  },
+  {
+    "objectID": "index.html#references",
+    "href": "index.html#references",
+    "title": "",
+    "section": "References",
+    "text": "References\n\n\nBagni, U. V., & Barros, D. C. D. (2015). Erro em antropometria aplicada à avaliação nutricional nos serviços de saúde: Causas, consequências e métodos de mensuração. Nutrire, 40(2), 226–236. https://doi.org/10.4322/2316-7874.18613\n\n\nBopp, M., & Faeh, D. (2008). End-digits preference for self-reported height depends on language. BMC Public Health, 8(1), 342. https://doi.org/10.1186/1471-2458-8-342\n\n\nCorsi, D. J., Perkins, J. M., & Subramanian, S. V. (2017). Child anthropometry data quality from Demographic and Health Surveys, Multiple Indicator Cluster Surveys, and National Nutrition Surveys in the West Central Africa region: Are we comparing apples and oranges? Global Health Action, 10(1), 1328185. https://doi.org/10.1080/16549716.2017.1328185\n\n\nFinaret, A. B., & Hutchinson, M. (2018). Missingness of height data from the demographic and health surveys in Africa between 1991 and 2016 was not random but is unlikely to have major implications for biases in estimating stunting prevalence or the determinants of child height. The Journal of Nutrition, 148(5), 781–789. https://doi.org/10.1093/jn/nxy037\n\n\nLawman, H. G., Ogden, C. L., Hassink, S., Mallya, G., Vander Veur, S., & Foster, G. D. (2015). Comparing methods for identifying biologically implausible values in height, weight, and body mass index among youth. American Journal of Epidemiology, 182(4), 359–365. https://doi.org/10.1093/aje/kwv057\n\n\nLyons-Amos, M., & Stones, T. (2017). Trends in demographic and health survey data quality: An analysis of age heaping over time in 34 countries in sub saharan Africa between 1987 and 2015. BMC Research Notes, 10(1), 760. https://doi.org/10.1186/s13104-017-3091-x\n\n\nMei, Z. (2007). Standard deviation of anthropometric Z-scores as a data quality assessment tool using the 2006 WHO growth standards: A cross country analysis. Bulletin of the World Health Organization, 85(6), 441–448. https://doi.org/10.2471/BLT.06.034421\n\n\nMourão, E., Gallo, C. D. O., Nascimento, F. A. D., & Jaime, P. C. (2020). Tendência temporal da cobertura do Sistema de Vigilância Alimentar e Nutricional entre crianças menores de 5 anos da região Norte do Brasil, 2008-2017*. Epidemiologia e Serviços de Saúde, 29(2). https://doi.org/10.5123/S1679-49742020000200026\n\n\nNannan, N., Dorrington, R., & Bradshaw, D. (2019). Estimating completeness of birth registration in South Africa, 1996 – 2011. Bulletin of the World Health Organization, 97(7), 468–476. https://doi.org/10.2471/BLT.18.222620\n\n\nNascimento, F. A. D., Silva, S. A. D., & Jaime, P. C. (2017). Cobertura da avaliação do estado nutricional no Sistema de Vigilância Alimentar e Nutricional brasileiro: 2008 a 2013. Cadernos de Saúde Pública, 33(12). https://doi.org/10.1590/0102-311x00161516\n\n\nPerumal, N., Namaste, S., Qamar, H., Aimone, A., Bassani, D. G., & Roth, D. E. (2020). Anthropometric data quality assessment in multisurvey studies of child growth. The American Journal of Clinical Nutrition, 112, 806S–815S. https://doi.org/10.1093/ajcn/nqaa162\n\n\nR Core Team. (n.d.). R: A language and environment for statistical computing [Computer software]. R Foundation for Statistical Computing. https://www.R-project.org\n\n\nSilva, N. de J., Silva, J. F. de M. e, Carrilho, T. R. B., Pinto, E. de J., Andrade, R. da C. S. de, Silva, S. A., Pedroso, J., Spaniol, A. M., Bortolini, G. A., Fagundes, A., Nilson, E. A. F., Fiaccone, R. L., Kac, G., Barreto, M. L., & Ribeiro-Silva, R. de C. (2023). Qualidade dos dados antropométricos infantis do Sisvan, Brasil, 2008-2017. Revista de Saúde Pública, 57(1, 1), 62–62. https://doi.org/10.11606/s1518-8787.2023057004655\n\n\nSistema de Vigilância Alimentar e Nutricional. (n.d.). Estado nutricional [Data set]. openDataSUS. Retrieved November 16, 2023, from https://opendatasus.saude.gov.br/dataset/sisvan-estado-nutricional\n\n\nWickham, H. (2023). The tidy tools manifesto. Tidyverse. https://tidyverse.tidyverse.org/articles/manifesto.html\n\n\nWickham, H., Çetinkaya-Rundel, M., & Grolemund, G. (2023). R for data science: Import, tidy, transform, visualize, and model data (2nd ed.). O’Reilly Media. https://r4ds.hadley.nz\n\n\nWorld Health Organization. (2006). WHO child growth standards: Length/height-for-age, weight-for-age, weight-for-length, weight-for-height and body mass index-for-age: Methods and development. WHO Press. https://www.who.int/tools/child-growth-standards/standards"
+  }
+]

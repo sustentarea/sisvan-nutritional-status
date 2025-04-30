@@ -1,0 +1,15 @@
+# See https://git-scm.com/docs/gitignore to learn more.
+
+/.quarto/
+/.Rproj.user/
+/_freeze/
+/*_cache/
+/cache/
+
+*.knit.md
+.Rapp.history
+.RData
+.Renviron
+.Rhistory
+.Ruserdata
+*.utf8.md

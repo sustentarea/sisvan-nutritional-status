@@ -1,0 +1,558 @@
+```{r}
+#| label: setup
+#| include: false
+
+source(here::here("R", "_setup.R"))
+```
+
+<!-- badges: start -->
+[![License: MIT](https://img.shields.io/badge/License-MIT-10D810.svg)](https://choosealicense.com/licenses/mit/)
+[![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+<!-- badges: end -->
+
+## Overview
+
+This report contains a pipeline for cleaning and validation of the SISVAN nutritional dataset. The main goal is to provide a reliable workflow for processing and analyzing nutritional data from Brazil's Food and Nutrition Surveillance System ([SISVAN](https://sisaps.saude.gov.br/sisvan/)).
+
+::: {.callout-note}
+Click [here](https://colab.research.google.com/drive/1ND7DK4Uo3DQVc4Od7dJ1TeCkUrXNCOX1?usp=sharing) to access a Python version of the pipeline.
+:::
+
+::: {.callout-warning}
+The pipeline is still under development and may not be fully functional.
+
+This warning will be removed once the pipeline is complete.
+:::
+
+## Problem
+
+The Food and Nutrition Surveillance System ([SISVAN](https://sisaps.saude.gov.br/sisvan/)) is a strategic tool for monitoring the nutritional status of the Brazilian population, particularly those served by the Unified Health System ([SUS](https://www.gov.br/saude/pt-br/sus)). However, despite its broad scope and importance, the anthropometric data recorded in SISVAN often suffer from quality issues that limit their usefulness for rigorous analyses and evidence-based policymaking [@sisvana].
+
+Multiple factors contribute to these quality concerns, including the lack of standardized measurement protocols, variability in staff training, inconsistencies in data entry and processing, and incomplete population coverage [@bagni2015; @corsi2017; @perumal2020]. To assess and improve data quality, several indicators have been proposed and applied, such as population coverage [@nascimento2017; @mourao2020], completeness of birth dates and anthropometric measurements [@finaret2018; @nannan2019], digit preference for age, height, and weight [@lyons-amos2017; @bopp2008], the percentage of biologically implausible values [@lawman2015], and the dispersion and distribution of standardized weight and height measurements [@perumal2020; @mei2007].
+
+In light of this, there is a clear need for a systematic pipeline for cleaning and validating SISVAN data, aiming to identify, correct, or remove problematic records and ensure greater consistency, completeness, and plausibility of the information for use in research and public policy.
+
+## Methods
+
+### Source of Data
+
+The data used in this analysis were sourced from Brazil's Food and Nutrition Surveillance System ([SISVAN](https://sisaps.saude.gov.br/sisvan/)), specifically the nutritional status dataset [@sisvana]. For technical documentation about the dataset, see the [technical note](http://tabnet.datasus.gov.br/cgi/SISVAN/CNV/notas_sisvan.html) (available in Portuguese).
+
+The dataset is publicly available through the [Open Data SUS](https://opendatasus.saude.gov.br/dataset/sisvan-estado-nutricional).
+
+### Data Munging Approach
+
+Data munging followed the data science workflow outlined by @wickham2023e, as illustrated in [@fig-wickham-at-al-2024-figure-1]. All processes were made using the R programming language [@rcoreteama] and several R packages.
+
+The [tidyverse](https://www.tidyverse.org/) and [rOpenSci](https://ropensci.org/) peer-reviewed package ecosystem and other R packages adherents of the tidy tools manifesto [@wickham2023c] were prioritized. All processes were made in order to provide result transparency and reproducibility.
+
+::: {#fig-wickham-at-al-2024-figure-1}
+![](images/wickham-at-al-2024-figure-1.png){width=75%}
+
+[Source: Reproduced from @wickham2023e.]{.legend}
+
+Data science workflow created by Wickham, Çetinkaya-Runde, and Grolemund.
+:::
+
+The Tidyverse [code style guide](https://style.tidyverse.org/) and [design principles](https://design.tidyverse.org/) were followed to ensure consistency and enhance readability.
+
+All the analyses are fully reproducible and can be run again at any time. See the [README](hhttps://github.com/danielvartan/sisvan-nutritional-data/blob/main/README.md) file in the code repository to learn how to run them.
+
+### Data Munging Procedures
+
+The data cleaning process follows the methodological criteria described by [@silva2023a], which focuses on analyzing anthropometric data of Brazilian children:
+
+#### 1 Chunked Reading
+
+Processing large files in 100,000-row chunks to prevent memory overflows.
+
+#### 2 Age Filtering
+
+Selection of children **under 5 years of age** (`NU_IDADE_ANO` $\leq$ 4), according to the scope of WHO growth curves.
+
+#### 3 Removal of Incomplete Records
+
+Exclusion of rows missing any of these critical fields:
+
+- Weight (`NU_PESO`)
+- Height (`NU_ALTURA`)
+- Sex (`SG_SEXO`)
+- Assessment date (`DT_ACOMPANHAMENTO`)
+- Municipality (`CO_MUNICIPIO_IBGE`)
+
+#### 4 Duplicate Elimination
+
+Based on the combination of the variables:
+
+- `CO_PESSOA_SISVAN`
+- `DT_ACOMPANHAMENTO`
+- `NU_PESO`
+- `NU_ALTURA`
+
+#### 5 Variable and Date Conversions
+
+- `NU_IDADE_ANO` converted to **complete months**.
+- `DT_ACOMPANHAMENTO` converted to datetime format.
+- Extraction of `YEAR` and `YEAR_MONTH` (year and month of assessment).
+
+### Z-score Calculation
+
+The **LMS (Lambda-Mu-Sigma) method** from the [@who2006] is used.
+
+- Calculated indicator: Weight-for-Age (WAZ).
+- `L`, `M`, and `S` parameters vary by age (in months) and sex, following official WHO growth curves.
+
+#### Applied Formula
+
+For $L \neq 0$:
+
+$$
+z = \frac{(X / M)^{L} - 1}{L \times S}
+$$
+
+For $L = 0$:
+
+$$
+z = \frac{\ln(X / M)}{S}
+$$
+
+**Where**:
+
+- `X` = Observed value (e.g., weight)
+- `M` = Expected median for age and sex
+- `S` = Coefficient of variation (relative standard deviation)
+- `L` = Box-Cox parameter (skewness)
+
+### Data Aggregation
+
+Data are aggregated by **municipality and month** (`CO_MUNICIPIO_IBGE`, `YEAR_MONTH`), with the following indicators:
+
+- Mean weight (`MEAN_WEIGHT`)
+- Mean height (`MEAN_HEIGHT`)
+- Mean age in months (`MEAN_AGE_MONTHS`)
+- Total assessments (`NUM_ASSESSMENTS`)
+- Mean WAZ z-score (`MEAN_WAZ`)
+
+## Setting the Environment
+
+```{r}
+#| eval: false
+#| output: false
+
+library(cli)
+library(dplyr)
+library(fpeek)
+library(here)
+library(lubridate)
+library(readr)
+library(rutils) # github.com/danielvartan/rutils
+library(tidyr)
+library(utils)
+library(vroom)
+```
+
+```{r}
+source(here::here("R", "waz.R"))
+```
+
+## Setting Variables
+
+```{r}
+year <- 2023
+```
+
+```{r}
+age_limits <- c(0, 4)
+```
+
+## Downloading the Data
+
+```{r}
+if (!dir.exists(here::here("data"))) dir.create("data")
+```
+
+```{r}
+#| eval: false
+
+file <- here::here(
+  "data",
+  paste0("sisvan-nutritional-status-", year, "-raw.zip")
+)
+
+paste0(
+    "https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISVAN/",
+    "estado_nutricional/sisvan_estado_nutricional_",
+    year,
+    ".zip"
+  ) |>
+  httr2::request() |>
+  httr2::req_progress() |>
+  httr2::req_perform(file)
+```
+
+## Unzipping the Data
+
+```{r}
+#| eval: false
+
+file <-
+  file |>
+  utils::unzip(exdir = here::here("data"), overwrite = TRUE)
+```
+
+```{r}
+#| echo: false
+
+file <- here::here(
+  "data",
+  paste0("sisvan_estado_nutricional_", year, ".csv")
+)
+```
+
+## Checking Data Dimensions
+
+```{r}
+#| eval: false
+
+cols <-
+  file |>
+  readr::read_delim(
+    delim = ";",
+    col_names = FALSE,
+    n_max = 1,
+    progress = FALSE
+  ) |>
+  rutils::shush() |>
+  ncol()
+
+rows <- fpeek::peek_count_lines(file)
+cells <- cols * rows
+
+cli::cli_inform(paste0(
+  "The file has ",
+  "{.strong {cli::col_red(prettyNum(cols, big.mark = ','))}} columns, ",
+  "{.strong {cli::col_green(prettyNum(rows, big.mark = ','))}} rows, and ",
+  "{.strong {cli::col_blue(prettyNum(cells, big.mark = ','))}} cells."
+))
+```
+
+## Reading and Filtering the Data
+
+```{r}
+#| eval: false
+#| include: false
+
+file |> readr::read_lines(n_max = 1)
+```
+
+```{r}
+#| eval: false
+#| include: false
+
+test <-
+  file |>
+  readr::read_delim(
+    delim = ";",
+    quote = "\"",
+    escape_backslash = FALSE,
+    escape_double = TRUE,
+    col_names = TRUE,
+    col_types = readr::cols(.default = "c"),
+    col_select = NULL,
+    id = NULL,
+    locale = readr::locale(
+      date_names = "pt",
+      date_format = "%d/%m/%Y",
+      time_format = "%H:%M:%S",
+      decimal_mark = ",",
+      grouping_mark = ".",
+      tz = "America/Sao_Paulo",
+      encoding = readr::guess_encoding(file)$encoding[1],
+      asciify = FALSE
+    ),
+    na = c("", "NA"),
+    comment = "",
+    trim_ws = FALSE,
+    skip = 0,
+    n_max = 1000,
+    guess_max = 100,
+    name_repair = "unique",
+    num_threads = readr::readr_threads(),
+    progress = TRUE,
+    show_col_types = FALSE,
+    skip_empty_rows = TRUE,
+    lazy = FALSE
+  )
+```
+
+```{r}
+#| eval: false
+#| include: false
+
+test_file <- here::here("data", "sisvan-nutrional-status-test-raw.csv")
+
+test |> readr::write_csv2(test_file)
+```
+
+```{r}
+col_names <- c(
+  "CO_ACOMPANHAMENTO",
+  "CO_PESSOA_SISVAN",
+  "ST_PARTICIPA_ANDI",
+  "CO_MUNICIPIO_IBGE",
+  "SG_UF",
+  "NO_MUNICIPIO",
+  "CO_CNES",
+  "NU_IDADE_ANO",
+  "NU_FASE_VIDA",
+  "DS_FASE_VIDA",
+  "SG_SEXO",
+  "CO_RACA_COR",
+  "DS_RACA_COR",
+  "CO_POVO_COMUNIDADE",
+  "DS_POVO_COMUNIDADE",
+  "CO_ESCOLARIDADE",
+  "DS_ESCOLARIDADE",
+  "DT_ACOMPANHAMENTO",
+  "NU_COMPETENCIA",
+  "NU_PESO",
+  "NU_ALTURA",
+  "DS_IMC",
+  "DS_IMC_PRE_GESTACIONAL",
+  "PESO X IDADE",
+  "PESO X ALTURA",
+  "CRI. ALTURA X IDADE",
+  "CRI. IMC X IDADE",
+  "ADO. ALTURA X IDADE",
+  "ADO. IMC X IDADE",
+  "CO_ESTADO_NUTRI_ADULTO",
+  "CO_ESTADO_NUTRI_IDOSO",
+  "CO_ESTADO_NUTRI_IMC_SEMGEST",
+  "CO_SISTEMA_ORIGEM_ACOMP",
+  "SISTEMA_ORIGEM_ACOMP"
+)
+```
+
+```{r}
+schema <- vroom::cols(
+  CO_ACOMPANHAMENTO = vroom::col_character(),
+  CO_PESSOA_SISVAN = vroom::col_character(),
+  ST_PARTICIPA_ANDI = vroom::col_character(),
+  CO_MUNICIPIO_IBGE = vroom::col_integer(),
+  SG_UF = vroom::col_factor(),
+  NO_MUNICIPIO = vroom::col_character(), # ? vroom::col_factor()
+  CO_CNES = vroom::col_integer(),
+  NU_IDADE_ANO = vroom::col_integer(),
+  NU_FASE_VIDA = vroom::col_character(), # decimal mark = "." (double)
+  DS_FASE_VIDA = vroom::col_factor(),
+  SG_SEXO = vroom::col_factor(),
+  CO_RACA_COR = vroom::col_character(),
+  DS_RACA_COR = vroom::col_factor(),
+  CO_POVO_COMUNIDADE = vroom::col_integer(),
+  DS_POVO_COMUNIDADE = vroom::col_factor(),
+  CO_ESCOLARIDADE = vroom::col_character(),
+  DS_ESCOLARIDADE = vroom::col_factor(),
+  DT_ACOMPANHAMENTO = vroom::col_date(),
+  NU_COMPETENCIA = vroom::col_integer(),
+  NU_PESO = vroom::col_double(),
+  NU_ALTURA = vroom::col_integer(),
+  DS_IMC = vroom::col_double(),
+  DS_IMC_PRE_GESTACIONAL = vroom::col_character(), # decimal mark = "." (double)
+  "PESO X IDADE" = vroom::col_factor(),
+  "PESO X ALTURA" = vroom::col_factor(),
+  "CRI. ALTURA X IDADE" = vroom::col_factor(),
+  "CRI. IMC X IDADE" = vroom::col_factor(),
+  "ADO. ALTURA X IDADE" = vroom::col_factor(),
+  "ADO. IMC X IDADE" = vroom::col_factor(),
+  CO_ESTADO_NUTRI_ADULTO = vroom::col_factor(),
+  CO_ESTADO_NUTRI_IDOSO = vroom::col_factor(),
+  CO_ESTADO_NUTRI_IMC_SEMGEST = vroom::col_factor(),
+  CO_SISTEMA_ORIGEM_ACOMP = vroom::col_integer(),
+  SISTEMA_ORIGEM_ACOMP = vroom::col_factor()
+)
+```
+
+```{r}
+data <-
+  vroom::vroom(
+    file = pipe(
+      paste(
+        "awk -F ';' '{ if (",
+        "($8 >= ", age_limits[1], ") && ($8 <= ", age_limits[2], ")",
+        ") { print } }'",
+        file
+      )
+    ),
+    delim = ";",
+    col_names = col_names,
+    col_types = schema,
+    col_select =  c(
+      "CO_PESSOA_SISVAN", "DT_ACOMPANHAMENTO", "NU_PESO", "NU_ALTURA",
+      "NU_IDADE_ANO", "SG_SEXO", "CO_MUNICIPIO_IBGE"
+    ),
+    id = NULL,
+    skip = 0,
+    n_max = Inf,
+    na = c("", "NA"),
+    quote = "\"",
+    comment = "",
+    skip_empty_rows = TRUE,
+    trim_ws = TRUE,
+    escape_double = TRUE,
+    escape_backslash = FALSE,
+    locale = vroom::locale(
+      date_names = "pt",
+      date_format = "%d/%m/%Y",
+      time_format = "%H:%M:%S",
+      decimal_mark = ",",
+      grouping_mark = ".",
+      tz = "America/Sao_Paulo",
+      encoding = readr::guess_encoding(file)$encoding[1]
+    ),
+    guess_max = 100,
+    altrep = TRUE,
+    num_threads = vroom:::vroom_threads(),
+    progress = vroom::vroom_progress(),
+    show_col_types = NULL,
+    .name_repair = "unique"
+  )
+```
+
+```{r}
+data |> dplyr::glimpse()
+```
+
+## Removing Duplicates
+
+```{r}
+data <-
+  data |>
+  dplyr::distinct(
+    CO_PESSOA_SISVAN,
+    DT_ACOMPANHAMENTO,
+    NU_PESO,
+    NU_ALTURA,
+    .keep_all = TRUE
+  )
+```
+
+## Tidying and Transforming the Data
+
+```{r}
+data <-
+  data |>
+  tidyr::drop_na(
+    CO_MUNICIPIO_IBGE,
+    SG_SEXO,
+    DT_ACOMPANHAMENTO,
+    NU_PESO,
+    NU_ALTURA
+  ) |>
+  dplyr::mutate(
+    IDADE_MESES = NU_IDADE_ANO * 12,
+    ANO_MES = lubridate::month(DT_ACOMPANHAMENTO),
+    ANO = lubridate::year(DT_ACOMPANHAMENTO)
+    # WAZ = waz()
+  )
+```
+
+```{r}
+data |> dplyr::glimpse()
+```
+
+## Aggregating the Data
+
+```{r}
+data <-
+  data |>
+  dplyr::group_by(
+    CO_MUNICIPIO_IBGE,
+    ANO,
+    ANO_MES
+  ) |>
+  dplyr::summarise(
+    NU_PESO = mean(NU_PESO, na.rm = TRUE),
+    NU_ALTURA = mean(NU_ALTURA, na.rm = TRUE),
+    IDADE_MESES = mean(IDADE_MESES, na.rm = TRUE),
+    CO_PESSOA_SISVAN = dplyr::n()
+  )
+```
+
+```{r}
+data |> dplyr::glimpse()
+```
+
+## Renaming the Variables
+
+```{r}
+data <-
+  data |>
+  dplyr::rename(
+    PESO_MEDIO = NU_PESO,
+    ALTURA_MEDIA = NU_ALTURA,
+    IDADE_MEDIA_MES = IDADE_MESES,
+    NUM_ACOMPANHAMENTOS = CO_PESSOA_SISVAN
+  )
+```
+
+```{r}
+data |> dplyr::glimpse()
+```
+
+## Validating the Data
+
+## Data Dictionary
+
+```{r}
+data
+```
+
+## Saving the Valid Data
+
+```{r}
+#| eval: false
+
+data |> write_csv(here("data", "sisvan-nutrional-status-valid.csv"))
+```
+
+```{r}
+#| eval: false
+
+data |> write_rds(here("data", "sisvan-nutrional-status-valid.rds"))
+```
+
+<!-- Upload data to OSF! -->
+
+## License
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-10D810.svg)](https://choosealicense.com/licenses/mit/)
+[![License: CC BY
+4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+
+The code in this repository is licensed under the [MIT License](https://opensource.org/license/mit/), while the documents are available under the [Creative Commons Attribution 4.0 International
+License](https://creativecommons.org/licenses/by/4.0/).
+
+## How to Cite
+
+To cite this work, please use the following format:
+
+Vartanian, D.; & Schettino, J. P. J. (2025). *A pipeline for cleaning and validating SISVAN nutritional data* \[Report\]. Sustentarea Research and Extension Group at the University of São Paulo. <https://sustentarea.github.io/sisvan-nutritional-data/>
+
+A BibTeX entry for LaTeX users is
+
+```
+@techreport{vartanian2025,
+  title = {A pipeline for cleaning and validating SISVAN nutritional data},
+  author = {{Daniel Vartanian} and {João Pedro Junqueira Schettino}},
+  year = {2025},
+  address = {São Paulo},
+  institution = {Sustentarea Research and Extension Group at the University of São Paulo},
+  langid = {en},
+  url = {https://sustentarea.github.io/sisvan-nutritional-data/}
+}
+```
+
+## References {.unnumbered}
+
+::: {#refs}
+:::
