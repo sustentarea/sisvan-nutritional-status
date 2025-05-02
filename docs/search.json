@@ -95,21 +95,7 @@
     "href": "index.html#arranging-the-data",
     "title": "",
     "section": "Arranging the Data",
-    "text": "Arranging the Data\n\ndata &lt;-\n  data |&gt;\n  dplyr::arrange(\n    municipality_code,\n    date,\n    sex,\n    age,\n    weight,\n    height\n  )\n\n\ndata |&gt; dplyr::glimpse()\n#&gt; Rows: 4,770,414\n#&gt; Columns: 7\n#&gt; $ id                &lt;chr&gt; \"263E905B0395FF94BE2D97E92983F83D0F4D01E6\", \"B812…\n#&gt; $ municipality_code &lt;int&gt; 110001, 110001, 110001, 110001, 110001, 110001, 1…\n#&gt; $ date              &lt;date&gt; 2017-01-04, 2017-01-05, 2017-01-06, 2017-01-09, …\n#&gt; $ sex               &lt;fct&gt; female, male, female, male, male, female, male, m…\n#&gt; $ age               &lt;int&gt; 1, 1, 4, 2, 0, 3, 1, 2, 1, 4, 0, 2, 0, 0, 4, 0, 0…\n#&gt; $ weight            &lt;dbl&gt; 9.000, 9.700, 14.000, 12.700, 6.600, 13.800, 10.0…\n#&gt; $ height            &lt;int&gt; 81, 75, 95, 89, 58, 98, 83, 80, 76, 111, 53, 95, …\n\n\nCodedata"
-  },
-  {
-    "objectID": "index.html#data-dictionary",
-    "href": "index.html#data-dictionary",
-    "title": "",
-    "section": "Data Dictionary",
-    "text": "Data Dictionary\n\n\nid: Unique identifier for the individual.\n\nmunicipality_code: IBGE code of the municipality.\n\ndate: Date of the individual’s nutritional assessment.\n\nsex: Sex of the individual.\n\nage: Age of the individual in years.\n\nweight: Weight of the individual in kilograms.\n\nheight: Height of the individual in centimeters."
-  },
-  {
-    "objectID": "index.html#aggregating-the-data",
-    "href": "index.html#aggregating-the-data",
-    "title": "",
-    "section": "Aggregating the Data",
-    "text": "Aggregating the Data\n\n\ndata_agg &lt;-\n  data |&gt;\n  dplyr::mutate(\n    year = lubridate::year(date),\n    month = lubridate::month(date),\n    age_months = age * 12\n  ) |&gt;\n  dplyr::summarize(\n    coverage = dplyr::n(),\n    mean_age_months = age_months |&gt; mean(na.rm = TRUE),\n    mean_weight = weight |&gt; mean(na.rm = TRUE),\n    mean_height = height |&gt; mean(na.rm = TRUE),\n    .by = dplyr::all_of(c(\"municipality_code\", \"year\", \"month\"))\n  )\n\n\ndata_agg |&gt; dplyr::glimpse()\n#&gt; Rows: 59,548\n#&gt; Columns: 7\n#&gt; $ municipality_code &lt;int&gt; 110001, 110001, 110001, 110001, 110001, 110001, 1…\n#&gt; $ year              &lt;dbl&gt; 2017, 2017, 2017, 2017, 2017, 2017, 2017, 2017, 2…\n#&gt; $ month             &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3, 4…\n#&gt; $ coverage          &lt;int&gt; 21, 26, 73, 32, 28, 22, 12, 31, 130, 236, 77, 68,…\n#&gt; $ mean_age_months   &lt;dbl&gt; 18.85714286, 29.07692308, 26.30136986, 27.3750000…\n#&gt; $ mean_weight       &lt;dbl&gt; 10.77138095, 15.23333333, 13.35937500, 13.9769642…\n#&gt; $ mean_height       &lt;dbl&gt; 80.52380952, 96.11538462, 90.61643836, 91.1875000…\n\n\nCodedata_agg"
+    "text": "Arranging the Data\n\ndata &lt;-\n  data |&gt;\n  dplyr::arrange(\n    municipality_code,\n    date,\n    sex,\n    age,\n    weight,\n    height\n  )\n\n\ndata |&gt; dplyr::glimpse()\n#&gt; Rows: 4,770,414\n#&gt; Columns: 7\n#&gt; $ id                &lt;chr&gt; \"263E905B0395FF94BE2D97E92983F83D0F4D01E6\", \"B812…\n#&gt; $ municipality_code &lt;int&gt; 110001, 110001, 110001, 110001, 110001, 110001, 1…\n#&gt; $ date              &lt;date&gt; 2017-01-04, 2017-01-05, 2017-01-06, 2017-01-09, …\n#&gt; $ sex               &lt;fct&gt; female, male, female, male, male, female, male, m…\n#&gt; $ age               &lt;int&gt; 1, 1, 4, 2, 0, 3, 1, 2, 1, 4, 0, 2, 0, 0, 4, 0, 0…\n#&gt; $ weight            &lt;dbl&gt; 9.000, 9.700, 14.000, 12.700, 6.600, 13.800, 10.0…\n#&gt; $ height            &lt;int&gt; 81, 75, 95, 89, 58, 98, 83, 80, 76, 111, 53, 95, …"
   },
   {
     "objectID": "index.html#saving-the-valid-data",
@@ -117,6 +103,13 @@
     "title": "",
     "section": "Saving the Valid Data",
     "text": "Saving the Valid Data\n\nCodedata |&gt;\n  readr::write_csv(\n    here::here(\n      \"data\",\n      paste0(\"sisvan-nutritional-status-\", year, \"-valid.csv\")\n    )\n  )\n\n\n\nCodedata |&gt;\n  readr::write_rds(\n    here::here(\n      \"data\",\n      paste0(\"sisvan-nutritional-status-\", year, \"-valid.rds\")\n    )\n  )"
+  },
+  {
+    "objectID": "index.html#data-dictionary",
+    "href": "index.html#data-dictionary",
+    "title": "",
+    "section": "Data Dictionary",
+    "text": "Data Dictionary\n\n\nid: Unique identifier for the individual.\n\nmunicipality_code: IBGE code of the municipality.\n\ndate: Date of the individual’s nutritional assessment.\n\nsex: Sex of the individual.\n\nage: Age of the individual in years.\n\nweight: Weight of the individual in kilograms.\n\nheight: Height of the individual in centimeters.\n\n\nCodedata"
   },
   {
     "objectID": "index.html#visualizing-the-data",

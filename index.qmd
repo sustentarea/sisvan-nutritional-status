@@ -496,53 +496,6 @@ data <-
 data |> dplyr::glimpse()
 ```
 
-```{r}
-data
-```
-
-## Data Dictionary
-
-- `id`: Unique identifier for the individual.
-- `municipality_code`: IBGE code of the municipality.
-- `date`: Date of the individual's nutritional assessment.
-- `sex`: Sex of the individual.
-- `age`: Age of the individual in years.
-- `weight`: Weight of the individual in kilograms.
-- `height`: Height of the individual in centimeters.
-
-## Aggregating the Data
-
-<!-- Remove after commit (2025-05-02) -->
-
-```{r}
-#| code-fold: false
-
-data_agg <-
-  data |>
-  dplyr::mutate(
-    year = lubridate::year(date),
-    month = lubridate::month(date),
-    age_months = age * 12
-  ) |>
-  dplyr::summarize(
-    coverage = dplyr::n(),
-    mean_age_months = age_months |> mean(na.rm = TRUE),
-    mean_weight = weight |> mean(na.rm = TRUE),
-    mean_height = height |> mean(na.rm = TRUE),
-    .by = dplyr::all_of(c("municipality_code", "year", "month"))
-  )
-```
-
-```{r}
-#| code-fold: false
-
-data_agg |> dplyr::glimpse()
-```
-
-```{r}
-data_agg
-```
-
 ## Saving the Valid Data
 
 ```{r}
@@ -567,6 +520,20 @@ data |>
       paste0("sisvan-nutritional-status-", year, "-valid.rds")
     )
   )
+```
+
+## Data Dictionary
+
+- `id`: Unique identifier for the individual.
+- `municipality_code`: IBGE code of the municipality.
+- `date`: Date of the individual's nutritional assessment.
+- `sex`: Sex of the individual.
+- `age`: Age of the individual in years.
+- `weight`: Weight of the individual in kilograms.
+- `height`: Height of the individual in centimeters.
+
+```{r}
+data
 ```
 
 <!-- Upload data to OSF! -->
