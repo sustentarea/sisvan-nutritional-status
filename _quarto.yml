@@ -12,19 +12,19 @@ project:
   post-render: "R/_post-render.R"
 
 title: >
-  A Pipeline for Cleaning and Validating SISVAN Nutritional Data
+  A Pipeline for Cleaning and Validating the SISVAN Nutritional Status Dataset
 author: "Daniel Vartanian & João Pedro Junqueira Schettino"
 keyword: >
-  nutrition, malnutrition, obesity, sustainable eating, data science,
-  data analysis, rstats, sisvan, brazil
+  nutrition, malnutrition, obesity, data science, data munging, rstats,
+  sisvan, brazil
 date: today
 date-format: "YYYY-MM-DD"
 
 website:
   favicon: images/sustentarea-icon.svg
-  site-url: https://sustentarea.github.io/sisvan-nutritional-data/
-  repo-url: https://github.com/sustentarea/sisvan-nutritional-data/
-  issue-url: https://github.com/sustentarea/sisvan-nutritional-data/issues/
+  site-url: https://sustentarea.github.io/sisvan-nutritional-status/
+  repo-url: https://github.com/sustentarea/sisvan-nutritional-status/
+  issue-url: https://github.com/sustentarea/sisvan-nutritional-status/issues/
   open-graph:
     image: images/og-image.png
     image-width: 2400
@@ -38,7 +38,7 @@ website:
     background: "#272B33"
     right:
       - icon: github
-        href: https://sustentarea.github.io/sisvan-nutritional-data/
+        href: https://sustentarea.github.io/sisvan-nutritional-status/
         aria-label: GitHub
 
 lightbox:
@@ -54,7 +54,7 @@ format:
     toc-location: right
     locale: en
     language: en-us
-    code-fold: false
+    code-fold: true
     code-link: true
     code-tools: false
     df-print: paged

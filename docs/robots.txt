@@ -1,1 +1,1 @@
-Sitemap: https://sustentarea.github.io/sisvan-nutritional-data/sitemap.xml
+Sitemap: https://sustentarea.github.io/sisvan-nutritional-status/sitemap.xml

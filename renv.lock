@@ -2013,6 +2013,64 @@
       "Maintainer": "Hadley Wickham <hadley@rstudio.com>",
       "Repository": "RSPM"
     },
+    "foreign": {
+      "Package": "foreign",
+      "Version": "0.8-90",
+      "Source": "Repository",
+      "Priority": "recommended",
+      "Date": "2025-03-31",
+      "Title": "Read Data Stored by 'Minitab', 'S', 'SAS', 'SPSS', 'Stata', 'Systat', 'Weka', 'dBase', ...",
+      "Depends": [
+        "R (>= 4.0.0)"
+      ],
+      "Imports": [
+        "methods",
+        "utils",
+        "stats"
+      ],
+      "Authors@R": "c( person(\"R Core Team\", email = \"R-core@R-project.org\", role = c(\"aut\", \"cph\", \"cre\"), comment = c(ROR = \"02zz1nj61\")), person(\"Roger\", \"Bivand\", role = c(\"ctb\", \"cph\")), person(c(\"Vincent\", \"J.\"), \"Carey\", role = c(\"ctb\", \"cph\")), person(\"Saikat\", \"DebRoy\", role = c(\"ctb\", \"cph\")), person(\"Stephen\", \"Eglen\", role = c(\"ctb\", \"cph\")), person(\"Rajarshi\", \"Guha\", role = c(\"ctb\", \"cph\")), person(\"Swetlana\", \"Herbrandt\", role = \"ctb\"), person(\"Nicholas\", \"Lewin-Koh\", role = c(\"ctb\", \"cph\")), person(\"Mark\", \"Myatt\", role = c(\"ctb\", \"cph\")), person(\"Michael\", \"Nelson\", role = \"ctb\"), person(\"Ben\", \"Pfaff\", role = \"ctb\"), person(\"Brian\", \"Quistorff\", role = \"ctb\"), person(\"Frank\", \"Warmerdam\", role = c(\"ctb\", \"cph\")), person(\"Stephen\", \"Weigand\", role = c(\"ctb\", \"cph\")), person(\"Free Software Foundation, Inc.\", role = \"cph\"))",
+      "Contact": "see 'MailingList'",
+      "Copyright": "see file COPYRIGHTS",
+      "Description": "Reading and writing data stored by some versions of 'Epi Info', 'Minitab', 'S', 'SAS', 'SPSS', 'Stata', 'Systat', 'Weka', and for reading and writing some 'dBase' files.",
+      "ByteCompile": "yes",
+      "Biarch": "yes",
+      "License": "GPL (>= 2)",
+      "BugReports": "https://bugs.r-project.org",
+      "MailingList": "R-help@r-project.org",
+      "URL": "https://svn.r-project.org/R-packages/trunk/foreign/",
+      "NeedsCompilation": "yes",
+      "Author": "R Core Team [aut, cph, cre] (02zz1nj61), Roger Bivand [ctb, cph], Vincent J. Carey [ctb, cph], Saikat DebRoy [ctb, cph], Stephen Eglen [ctb, cph], Rajarshi Guha [ctb, cph], Swetlana Herbrandt [ctb], Nicholas Lewin-Koh [ctb, cph], Mark Myatt [ctb, cph], Michael Nelson [ctb], Ben Pfaff [ctb], Brian Quistorff [ctb], Frank Warmerdam [ctb, cph], Stephen Weigand [ctb, cph], Free Software Foundation, Inc. [cph]",
+      "Maintainer": "R Core Team <R-core@R-project.org>",
+      "Repository": "CRAN"
+    },
+    "fpeek": {
+      "Package": "fpeek",
+      "Version": "0.1.2",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Check Text Files Content at a Glance",
+      "Authors@R": "c( person(\"David\", \"Gohel\", role = c(\"aut\", \"cre\"), email = \"david.gohel@ardata.fr\"))",
+      "Description": "Tools to help text files importation. It can return  the number of lines; print the first and last lines; convert  encoding. Operations are made without reading the entire file  before starting, resulting in good performances with large files.  This package provides an alternative to a simple use of the  'head', 'tail', 'wc' and 'iconv' programs that are not always  available on machine where R is installed.",
+      "BugReports": "https://github.com/davidgohel/fpeek/issues",
+      "URL": "https://github.com/davidgohel/fpeek",
+      "License": "MIT + file LICENSE",
+      "Encoding": "UTF-8",
+      "Imports": [
+        "Rcpp (>= 0.12.12)"
+      ],
+      "LinkingTo": [
+        "Rcpp"
+      ],
+      "RoxygenNote": "7.1.1",
+      "Suggests": [
+        "testthat",
+        "covr"
+      ],
+      "NeedsCompilation": "yes",
+      "Author": "David Gohel [aut, cre]",
+      "Maintainer": "David Gohel <david.gohel@ardata.fr>",
+      "Repository": "CRAN"
+    },
     "fs": {
       "Package": "fs",
       "Version": "1.6.6",
@@ -2481,21 +2539,22 @@
         "spelling (>= 2.3.1)",
         "testthat (>= 3.2.2)"
       ],
-      "Remotes": "github::danielvartan/prettycheck",
       "Config/testthat/edition": "3",
       "Encoding": "UTF-8",
       "Language": "en-US",
+      "LazyData": "true",
+      "LazyDataCompression": "bzip2",
       "Roxygen": "list(markdown = TRUE)",
       "RoxygenNote": "7.3.2",
+      "Author": "Daniel Vartanian [aut, cre, ccp, cph] (ORCID: <https://orcid.org/0000-0001-7782-759X>)",
+      "Maintainer": "Daniel Vartanian <danvartan@gmail.com>",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "groomr",
       "RemoteUsername": "danielvartan",
-      "RemoteRef": "HEAD",
+      "RemoteRepo": "groomr",
+      "RemoteRef": "main",
       "RemoteSha": "0c53a34790409f87af997e88a7f7055a4aa5f8e1",
-      "NeedsCompilation": "no",
-      "Author": "Daniel Vartanian [aut, cre, ccp, cph] (ORCID: <https://orcid.org/0000-0001-7782-759X>)",
-      "Maintainer": "Daniel Vartanian <danvartan@gmail.com>"
+      "Remotes": "github::danielvartan/prettycheck"
     },
     "gss": {
       "Package": "gss",
@@ -3521,21 +3580,21 @@
         "stats (>= 4.3)",
         "testthat (>= 3.2.2)"
       ],
-      "Remotes": "github::danielvartan/prettycheck",
       "Config/testthat/edition": "3",
       "Encoding": "UTF-8",
       "Language": "en-US",
+      "LazyData": "true",
       "Roxygen": "list(markdown = TRUE)",
       "RoxygenNote": "7.3.2",
+      "Author": "Daniel Vartanian [aut, cre, ccp, cph] (ORCID: <https://orcid.org/0000-0001-7782-759X>)",
+      "Maintainer": "Daniel Vartanian <danvartan@gmail.com>",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "lubritime",
       "RemoteUsername": "danielvartan",
-      "RemoteRef": "HEAD",
+      "RemoteRepo": "lubritime",
+      "RemoteRef": "main",
       "RemoteSha": "6c24aa2f82d17ca2c0e83fc6467928e567f91c3b",
-      "NeedsCompilation": "no",
-      "Author": "Daniel Vartanian [aut, cre, ccp, cph] (ORCID: <https://orcid.org/0000-0001-7782-759X>)",
-      "Maintainer": "Daniel Vartanian <danvartan@gmail.com>"
+      "Remotes": "github::danielvartan/prettycheck"
     },
     "magick": {
       "Package": "magick",
@@ -3896,21 +3955,21 @@
         "testthat (>= 3.2.2)",
         "tibble (>= 3.2.1)"
       ],
-      "Remotes": "github::danielvartan/groomr, github::danielvartan/prettycheck,",
       "Config/testthat/edition": "3",
       "Encoding": "UTF-8",
       "Language": "en-US",
       "Roxygen": "list(markdown = TRUE)",
       "RoxygenNote": "7.3.2",
+      "LazyData": "true",
+      "Author": "Daniel Vartanian [aut, cre, ccp, cph] (ORCID: <https://orcid.org/0000-0001-7782-759X>)",
+      "Maintainer": "Daniel Vartanian <danvartan@gmail.com>",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "orbis",
       "RemoteUsername": "danielvartan",
-      "RemoteRef": "HEAD",
+      "RemoteRepo": "orbis",
+      "RemoteRef": "main",
       "RemoteSha": "0d840fa6a0063689a1d54d1d1f5f0711e7f27618",
-      "NeedsCompilation": "no",
-      "Author": "Daniel Vartanian [aut, cre, ccp, cph] (ORCID: <https://orcid.org/0000-0001-7782-759X>)",
-      "Maintainer": "Daniel Vartanian <danvartan@gmail.com>"
+      "Remotes": "github::danielvartan/groomr, github::danielvartan/prettycheck,"
     },
     "osfr": {
       "Package": "osfr",
@@ -4006,7 +4065,6 @@
         "rmarkdown (>= 2.1)",
         "roxygen2 (>= 7.1.2)",
         "rprojroot (>= 2.0.3)",
-        "rstudioapi (>= 0.11)",
         "rvest (>= 1.0.2)",
         "testthat (>= 3.0.0)",
         "tinkr (>= 0.1.0)",
@@ -4017,21 +4075,22 @@
         "xml2 (>= 1.3.2)",
         "xslt (>= 1.4.3)"
       ],
-      "Remotes": "gitlab::rpkg.dev/pkgsnip",
       "Config/Needs/website": "gitlab::rpkg.dev/pkgdown.tpl",
       "Config/testthat/edition": "3",
       "Encoding": "UTF-8",
+      "LazyData": "true",
       "Roxygen": "list(markdown = TRUE)",
       "RoxygenNote": "7.3.2.9000",
+      "Author": "Salim Brüggemann [aut, cre] (ORCID: <https://orcid.org/0000-0002-5329-5987>)",
+      "Maintainer": "Salim Brüggemann <salim@rpkg.dev>",
       "RemoteType": "gitlab",
       "RemoteHost": "gitlab.com",
-      "RemoteRepo": "pal",
       "RemoteUsername": "rpkg.dev",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "ed31fc5489f57075abec0b6590d2ed370368094e",
-      "NeedsCompilation": "no",
-      "Author": "Salim Brüggemann [aut, cre] (ORCID: <https://orcid.org/0000-0002-5329-5987>)",
-      "Maintainer": "Salim Brüggemann <salim@rpkg.dev>"
+      "RemoteRepo": "pal",
+      "RemoteSubdir": "",
+      "RemoteRef": "master",
+      "RemoteSha": "a88186901b24abfbef44693bf278f6383f9b5e1e",
+      "Remotes": "gitlab::rpkg.dev/pkgsnip"
     },
     "parameters": {
       "Package": "parameters",
@@ -4563,21 +4622,21 @@
         "spelling (>= 2.3.1)",
         "testthat (>= 3.2.2)"
       ],
-      "Remotes": "github::danielvartan/lubritime, github::danielvartan/orbis, github::danielvartan/prettycheck",
       "Config/testthat/edition": "3",
       "Encoding": "UTF-8",
       "Language": "en-US",
+      "LazyData": "true",
       "Roxygen": "list(markdown = TRUE)",
       "RoxygenNote": "7.3.2",
+      "Author": "Daniel Vartanian [aut, cre, ccp, cph] (ORCID: <https://orcid.org/0000-0001-7782-759X>)",
+      "Maintainer": "Daniel Vartanian <danvartan@gmail.com>",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "plotr",
       "RemoteUsername": "danielvartan",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "ecdc658a6e3520a42639c23a3575b809b27d06c1",
-      "NeedsCompilation": "no",
-      "Author": "Daniel Vartanian [aut, cre, ccp, cph] (ORCID: <https://orcid.org/0000-0001-7782-759X>)",
-      "Maintainer": "Daniel Vartanian <danvartan@gmail.com>"
+      "RemoteRepo": "plotr",
+      "RemoteRef": "main",
+      "RemoteSha": "66cee94b415593b73945ff272fa944eebc631964",
+      "Remotes": "github::danielvartan/lubritime, github::danielvartan/orbis, github::danielvartan/prettycheck"
     },
     "plyr": {
       "Package": "plyr",

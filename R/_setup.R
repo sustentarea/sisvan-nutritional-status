@@ -113,7 +113,8 @@ ggplot2::theme_set(
     legend.box.background = ggplot2::element_rect(
       fill = "transparent", color = NA
     ),
-    legend.frame = ggplot2::element_blank()
+    legend.frame = ggplot2::element_blank(),
+    legend.ticks = ggplot2::element_line(color = "white")
   )
 )
 

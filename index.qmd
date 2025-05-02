@@ -12,21 +12,17 @@ source(here::here("R", "_setup.R"))
 
 ## Overview
 
-This report contains a pipeline for cleaning and validation of the SISVAN nutritional dataset. The main goal is to provide a reliable workflow for processing and analyzing nutritional data from Brazil's Food and Nutrition Surveillance System ([SISVAN](https://sisaps.saude.gov.br/sisvan/)).
-
-::: {.callout-note}
-Click [here](https://colab.research.google.com/drive/1ND7DK4Uo3DQVc4Od7dJ1TeCkUrXNCOX1?usp=sharing) to access a Python version of the pipeline.
-:::
+This report contains a pipeline for cleaning and validation of the SISVAN nutritional status dataset. The main goal is to provide a reliable workflow for processing and analyzing nutritional data from Brazil's Food and Nutrition Surveillance System ([SISVAN](https://sisaps.saude.gov.br/sisvan/)).
 
 ::: {.callout-warning}
-The pipeline is still under development and may not be fully functional.
+This pipeline is still under development and may not be fully functional.
 
 This warning will be removed once the pipeline is complete.
 :::
 
 ## Problem
 
-The Food and Nutrition Surveillance System ([SISVAN](https://sisaps.saude.gov.br/sisvan/)) is a strategic tool for monitoring the nutritional status of the Brazilian population, particularly those served by the Unified Health System ([SUS](https://www.gov.br/saude/pt-br/sus)). However, despite its broad scope and importance, the anthropometric data recorded in SISVAN often suffer from quality issues that limit their usefulness for rigorous analyses and evidence-based policymaking [@sisvana].
+The Food and Nutrition Surveillance System ([SISVAN](https://sisaps.saude.gov.br/sisvan/)) is a strategic tool for monitoring the nutritional status of the Brazilian population, particularly those served by Brazil's Unified Health System ([SUS](https://www.gov.br/saude/pt-br/sus)). However, despite its broad scope and importance, the anthropometric data recorded in SISVAN often suffer from quality issues that limit their usefulness for rigorous analyses and evidence-based policymaking [@silva2023a].
 
 Multiple factors contribute to these quality concerns, including the lack of standardized measurement protocols, variability in staff training, inconsistencies in data entry and processing, and incomplete population coverage [@bagni2015; @corsi2017; @perumal2020]. To assess and improve data quality, several indicators have been proposed and applied, such as population coverage [@nascimento2017; @mourao2020], completeness of birth dates and anthropometric measurements [@finaret2018; @nannan2019], digit preference for age, height, and weight [@lyons-amos2017; @bopp2008], the percentage of biologically implausible values [@lawman2015], and the dispersion and distribution of standardized weight and height measurements [@perumal2020; @mei2007].
 
@@ -36,13 +32,16 @@ In light of this, there is a clear need for a systematic pipeline for cleaning a
 
 ### Source of Data
 
-The data used in this analysis were sourced from Brazil's Food and Nutrition Surveillance System ([SISVAN](https://sisaps.saude.gov.br/sisvan/)), specifically the nutritional status dataset [@sisvana]. For technical documentation about the dataset, see the [technical note](http://tabnet.datasus.gov.br/cgi/SISVAN/CNV/notas_sisvan.html) (available in Portuguese).
+The data used in this analysis come from the following sources:
 
-The dataset is publicly available through the [Open Data SUS](https://opendatasus.saude.gov.br/dataset/sisvan-estado-nutricional).
+- Brazil’s Food and Nutrition Surveillance System (SISVAN), which provides the nutritional status dataset used as the primary data source [@sisvana].
+- The Brazilian Institute of Geography and Statistics (IBGE), which supplies population estimates by municipality, age, and sex [@ibge2025].
 
-### Data Munging Approach
+For detailed technical documentation on the SISVAN dataset, refer to the [technical note](http://tabnet.datasus.gov.br/cgi/SISVAN/CNV/notas_sisvan.html) (in Portuguese).
 
-Data munging followed the data science workflow outlined by @wickham2023e, as illustrated in [@fig-wickham-at-al-2024-figure-1]. All processes were made using the R programming language [@rcoreteama] and several R packages.
+### Data Munging
+
+The data munging followed the data science workflow outlined by @wickham2023e, as illustrated in [@fig-wickham-at-al-2024-figure-1]. All processes were made using the [Quarto](https://quarto.org/) publishing system [@allaire], the [R programming language](https://www.r-project.org/) [@rcoreteama] and several R packages.
 
 The [tidyverse](https://www.tidyverse.org/) and [rOpenSci](https://ropensci.org/) peer-reviewed package ecosystem and other R packages adherents of the tidy tools manifesto [@wickham2023c] were prioritized. All processes were made in order to provide result transparency and reproducibility.
 
@@ -54,96 +53,43 @@ The [tidyverse](https://www.tidyverse.org/) and [rOpenSci](https://ropensci.org/
 Data science workflow created by Wickham, Çetinkaya-Runde, and Grolemund.
 :::
 
+### Data Validation
+
+Different validation methods were used to ensure the quality of the data:
+
+- The amount of data imported from the raw files were compared to the amount of data returned by [SISVAN's online data aggregator tool](https://sisaps.saude.gov.br/sisvan/relatoriopublico/).
+- Duplicates were removed based on distinct combinations of the variables `id`, `age`, `date` (date of the individual's nutritional assessment), `weight`, and `height`.
+- The number of nutritional assessments were compared to the estimated number of children in the population.
+
+@silva2023a quality indicators were also used for validation. Refer to the article for more details.
+
+### Code Style
+
 The Tidyverse [code style guide](https://style.tidyverse.org/) and [design principles](https://design.tidyverse.org/) were followed to ensure consistency and enhance readability.
 
-All the analyses are fully reproducible and can be run again at any time. See the [README](hhttps://github.com/danielvartan/sisvan-nutritional-data/blob/main/README.md) file in the code repository to learn how to run them.
+### Reproducibility
 
-### Data Munging Procedures
-
-The data cleaning process follows the methodological criteria described by [@silva2023a], which focuses on analyzing anthropometric data of Brazilian children:
-
-#### 1 Chunked Reading
-
-Processing large files in 100,000-row chunks to prevent memory overflows.
-
-#### 2 Age Filtering
-
-Selection of children **under 5 years of age** (`NU_IDADE_ANO` $\leq$ 4), according to the scope of WHO growth curves.
-
-#### 3 Removal of Incomplete Records
-
-Exclusion of rows missing any of these critical fields:
-
-- Weight (`NU_PESO`)
-- Height (`NU_ALTURA`)
-- Sex (`SG_SEXO`)
-- Assessment date (`DT_ACOMPANHAMENTO`)
-- Municipality (`CO_MUNICIPIO_IBGE`)
-
-#### 4 Duplicate Elimination
-
-Based on the combination of the variables:
-
-- `CO_PESSOA_SISVAN`
-- `DT_ACOMPANHAMENTO`
-- `NU_PESO`
-- `NU_ALTURA`
-
-#### 5 Variable and Date Conversions
-
-- `NU_IDADE_ANO` converted to **complete months**.
-- `DT_ACOMPANHAMENTO` converted to datetime format.
-- Extraction of `YEAR` and `YEAR_MONTH` (year and month of assessment).
-
-### Z-score Calculation
-
-The **LMS (Lambda-Mu-Sigma) method** from the [@who2006] is used.
-
-- Calculated indicator: Weight-for-Age (WAZ).
-- `L`, `M`, and `S` parameters vary by age (in months) and sex, following official WHO growth curves.
-
-#### Applied Formula
-
-For $L \neq 0$:
-
-$$
-z = \frac{(X / M)^{L} - 1}{L \times S}
-$$
-
-For $L = 0$:
-
-$$
-z = \frac{\ln(X / M)}{S}
-$$
-
-**Where**:
-
-- `X` = Observed value (e.g., weight)
-- `M` = Expected median for age and sex
-- `S` = Coefficient of variation (relative standard deviation)
-- `L` = Box-Cox parameter (skewness)
-
-### Data Aggregation
-
-Data are aggregated by **municipality and month** (`CO_MUNICIPIO_IBGE`, `YEAR_MONTH`), with the following indicators:
-
-- Mean weight (`MEAN_WEIGHT`)
-- Mean height (`MEAN_HEIGHT`)
-- Mean age in months (`MEAN_AGE_MONTHS`)
-- Total assessments (`NUM_ASSESSMENTS`)
-- Mean WAZ z-score (`MEAN_WAZ`)
+All the analyses are fully reproducible and can be run again at any time. See the [README](hhttps://github.com/danielvartan/sisvan-nutritional-status/blob/main/README.md) file in the code repository to learn how to run them.
 
 ## Setting the Environment
 
 ```{r}
 #| eval: false
-#| output: false
+#| code-fold: false
 
+library(brandr) # github.com/danielvartan/brandr
 library(cli)
 library(dplyr)
 library(fpeek)
+library(fs)
+library(foreign)
+library(ggplot2)
 library(here)
+library(httr2)
 library(lubridate)
+library(orbis) # github.com/danielvartan/orbis
+library(pal) # gitlab.com/rpkg.dev/pal
+library(plotr) # github.com/danielvartan/plotr
 library(readr)
 library(rutils) # github.com/danielvartan/rutils
 library(tidyr)
@@ -152,16 +98,34 @@ library(vroom)
 ```
 
 ```{r}
+#| code-fold: false
+
 source(here::here("R", "waz.R"))
 ```
 
-## Setting Variables
+```{r}
+#| include: false
+
+library(dplyr)
+library(ggplot2)
+library(vroom)
+```
+
+## Setting the Initial Variables
+
+::: {.callout-note}
+If you need data for additional years, simply run this pipeline within a loop over the desired years.
+:::
 
 ```{r}
-year <- 2023
+#| code-fold: false
+
+year <- 2017
 ```
 
 ```{r}
+#| code-fold: false
+
 age_limits <- c(0, 4)
 ```
 
@@ -172,12 +136,16 @@ if (!dir.exists(here::here("data"))) dir.create("data")
 ```
 
 ```{r}
-#| eval: false
+#| code-fold: false
 
-file <- here::here(
-  "data",
-  paste0("sisvan-nutritional-status-", year, "-raw.zip")
-)
+file_pattern <- paste0("sisvan-nutritional-status-", year, "-raw")
+```
+
+```{r}
+#| eval: false
+#| code-fold: false
+
+file <- here::here("data", paste0(file_pattern, ".zip"))
 
 paste0(
     "https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISVAN/",
@@ -201,18 +169,27 @@ file <-
 ```
 
 ```{r}
-#| echo: false
+#| eval: false
 
-file <- here::here(
-  "data",
-  paste0("sisvan_estado_nutricional_", year, ".csv")
-)
+file <- fs::file_move(file, here::here("data", paste0(file_pattern, ".csv")))
+```
+
+```{r}
+#| eval: false
+
+fs::file_delete(here::here("data", paste0(file_pattern, ".zip")))
 ```
 
 ## Checking Data Dimensions
 
 ```{r}
-#| eval: false
+#| echo: false
+
+file <- here::here("data", paste0(file_pattern, ".csv"))
+```
+
+```{r}
+#| code-fold: false
 
 cols <-
   file |>
@@ -238,63 +215,13 @@ cli::cli_inform(paste0(
 
 ## Reading and Filtering the Data
 
-```{r}
-#| eval: false
-#| include: false
-
-file |> readr::read_lines(n_max = 1)
-```
+::: {.callout-note}
+Click [here](https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISVAN/estado_nutricional/Dicion%C3%A1rio+de+Dados+-+Estado+Nutricional.pdf) to access the raw data dictionary (in Portuguese).
+:::
 
 ```{r}
-#| eval: false
-#| include: false
+#| code-fold: false
 
-test <-
-  file |>
-  readr::read_delim(
-    delim = ";",
-    quote = "\"",
-    escape_backslash = FALSE,
-    escape_double = TRUE,
-    col_names = TRUE,
-    col_types = readr::cols(.default = "c"),
-    col_select = NULL,
-    id = NULL,
-    locale = readr::locale(
-      date_names = "pt",
-      date_format = "%d/%m/%Y",
-      time_format = "%H:%M:%S",
-      decimal_mark = ",",
-      grouping_mark = ".",
-      tz = "America/Sao_Paulo",
-      encoding = readr::guess_encoding(file)$encoding[1],
-      asciify = FALSE
-    ),
-    na = c("", "NA"),
-    comment = "",
-    trim_ws = FALSE,
-    skip = 0,
-    n_max = 1000,
-    guess_max = 100,
-    name_repair = "unique",
-    num_threads = readr::readr_threads(),
-    progress = TRUE,
-    show_col_types = FALSE,
-    skip_empty_rows = TRUE,
-    lazy = FALSE
-  )
-```
-
-```{r}
-#| eval: false
-#| include: false
-
-test_file <- here::here("data", "sisvan-nutrional-status-test-raw.csv")
-
-test |> readr::write_csv2(test_file)
-```
-
-```{r}
 col_names <- c(
   "CO_ACOMPANHAMENTO",
   "CO_PESSOA_SISVAN",
@@ -334,6 +261,8 @@ col_names <- c(
 ```
 
 ```{r}
+#| code-fold: false
+
 schema <- vroom::cols(
   CO_ACOMPANHAMENTO = vroom::col_character(),
   CO_PESSOA_SISVAN = vroom::col_character(),
@@ -372,9 +301,18 @@ schema <- vroom::cols(
 )
 ```
 
+::: {.callout-important}
+You may see warning messages about failed parsing of some columns. These warnings are expected due to minor inconsistencies in the SISVAN raw data and do not affect the overall analysis.
+:::
+
 ```{r}
+#| warning: false
+#| code-fold: false
+
 data <-
   vroom::vroom(
+     # Uses `pipe()` and `awk` to filter data to avoid loading the
+     # entire file into memory.
     file = pipe(
       paste(
         "awk -F ';' '{ if (",
@@ -387,8 +325,13 @@ data <-
     col_names = col_names,
     col_types = schema,
     col_select =  c(
-      "CO_PESSOA_SISVAN", "DT_ACOMPANHAMENTO", "NU_PESO", "NU_ALTURA",
-      "NU_IDADE_ANO", "SG_SEXO", "CO_MUNICIPIO_IBGE"
+      "CO_PESSOA_SISVAN",
+      "CO_MUNICIPIO_IBGE",
+      "DT_ACOMPANHAMENTO",
+      "SG_SEXO",
+      "NU_IDADE_ANO",
+      "NU_PESO",
+      "NU_ALTURA"
     ),
     id = NULL,
     skip = 0,
@@ -419,92 +362,185 @@ data <-
 ```
 
 ```{r}
+#| eval: false
+#| echo: false
+
+data |> vroom::problems()
+```
+
+```{r}
+#| warning: false
+#| code-fold: false
+
+data |> dplyr::glimpse()
+```
+
+## Renaming the Data Variables
+
+```{r}
+#| code-fold: false
+
+data <-
+  data |>
+  janitor::clean_names() |>
+  dplyr::rename(
+    id = co_pessoa_sisvan,
+    municipality_code = co_municipio_ibge,
+    date = dt_acompanhamento,
+    sex = sg_sexo,
+    age = nu_idade_ano,
+    weight = nu_peso,
+    height = nu_altura
+  )
+```
+
+```{r}
+#| code-fold: false
+
+data |> dplyr::glimpse()
+```
+
+## Tidying the Data
+
+```{r}
+#| code-fold: false
+
+data <-
+  data |>
+  dplyr::mutate(
+    sex =
+      sex |>
+      dplyr::case_match(
+        "F" ~ "female",
+        "M" ~ "male"
+      ) |>
+      factor(
+        levels = c("male", "female"),
+        ordered = FALSE
+      )
+  )
+```
+
+```{r}
+#| code-fold: false
+
+data |> dplyr::glimpse()
+```
+
+## Transforming the Data
+
+```{r}
+#| eval: false
+#| include: false
+#| code-fold: false
+
+# data <-
+#   data |>
+#   dplyr::mutate(
+#     waz = waz()
+#   )
+```
+
+```{r}
+#| eval: false
+#| include: false
+#| code-fold: false
+
 data |> dplyr::glimpse()
 ```
 
 ## Removing Duplicates
 
 ```{r}
+#| code-fold: false
+
 data <-
   data |>
+  dplyr::arrange(dplyr::desc(date)) |>
   dplyr::distinct(
-    CO_PESSOA_SISVAN,
-    DT_ACOMPANHAMENTO,
-    NU_PESO,
-    NU_ALTURA,
+    id,
+    age,
+    date,
+    weight,
+    height,
     .keep_all = TRUE
   )
 ```
 
-## Tidying and Transforming the Data
+```{r}
+#| code-fold: false
+
+data |> dplyr::glimpse()
+```
+
+## Arranging the Data
 
 ```{r}
+#| code-fold: false
+
 data <-
   data |>
-  tidyr::drop_na(
-    CO_MUNICIPIO_IBGE,
-    SG_SEXO,
-    DT_ACOMPANHAMENTO,
-    NU_PESO,
-    NU_ALTURA
-  ) |>
-  dplyr::mutate(
-    IDADE_MESES = NU_IDADE_ANO * 12,
-    ANO_MES = lubridate::month(DT_ACOMPANHAMENTO),
-    ANO = lubridate::year(DT_ACOMPANHAMENTO)
-    # WAZ = waz()
+  dplyr::arrange(
+    municipality_code,
+    date,
+    sex,
+    age,
+    weight,
+    height
   )
 ```
 
 ```{r}
+#| code-fold: false
+
 data |> dplyr::glimpse()
 ```
-
-## Aggregating the Data
-
-```{r}
-data <-
-  data |>
-  dplyr::group_by(
-    CO_MUNICIPIO_IBGE,
-    ANO,
-    ANO_MES
-  ) |>
-  dplyr::summarise(
-    NU_PESO = mean(NU_PESO, na.rm = TRUE),
-    NU_ALTURA = mean(NU_ALTURA, na.rm = TRUE),
-    IDADE_MESES = mean(IDADE_MESES, na.rm = TRUE),
-    CO_PESSOA_SISVAN = dplyr::n()
-  )
-```
-
-```{r}
-data |> dplyr::glimpse()
-```
-
-## Renaming the Variables
-
-```{r}
-data <-
-  data |>
-  dplyr::rename(
-    PESO_MEDIO = NU_PESO,
-    ALTURA_MEDIA = NU_ALTURA,
-    IDADE_MEDIA_MES = IDADE_MESES,
-    NUM_ACOMPANHAMENTOS = CO_PESSOA_SISVAN
-  )
-```
-
-```{r}
-data |> dplyr::glimpse()
-```
-
-## Validating the Data
-
-## Data Dictionary
 
 ```{r}
 data
+```
+
+## Data Dictionary
+
+- `id`: Unique identifier for the individual.
+- `municipality_code`: IBGE code of the municipality.
+- `date`: Date of the individual's nutritional assessment.
+- `sex`: Sex of the individual.
+- `age`: Age of the individual in years.
+- `weight`: Weight of the individual in kilograms.
+- `height`: Height of the individual in centimeters.
+
+## Aggregating the Data
+
+<!-- Remove after commit (2025-05-02) -->
+
+```{r}
+#| code-fold: false
+
+data_agg <-
+  data |>
+  dplyr::mutate(
+    year = lubridate::year(date),
+    month = lubridate::month(date),
+    age_months = age * 12
+  ) |>
+  dplyr::summarize(
+    coverage = dplyr::n(),
+    mean_age_months = age_months |> mean(na.rm = TRUE),
+    mean_weight = weight |> mean(na.rm = TRUE),
+    mean_height = height |> mean(na.rm = TRUE),
+    .by = dplyr::all_of(c("municipality_code", "year", "month"))
+  )
+```
+
+```{r}
+#| code-fold: false
+
+data_agg |> dplyr::glimpse()
+```
+
+```{r}
+data_agg
 ```
 
 ## Saving the Valid Data
@@ -512,16 +548,416 @@ data
 ```{r}
 #| eval: false
 
-data |> write_csv(here("data", "sisvan-nutrional-status-valid.csv"))
+data |>
+  readr::write_csv(
+    here::here(
+      "data",
+      paste0("sisvan-nutritional-status-", year, "-valid.csv")
+    )
+  )
 ```
 
 ```{r}
 #| eval: false
 
-data |> write_rds(here("data", "sisvan-nutrional-status-valid.rds"))
+data |>
+  readr::write_rds(
+    here::here(
+      "data",
+      paste0("sisvan-nutritional-status-", year, "-valid.rds")
+    )
+  )
 ```
 
 <!-- Upload data to OSF! -->
+
+## Visualizing the Data
+
+### Downloading the Estimates of the Population Data
+
+```{r}
+#| code-fold: false
+
+datasus_file_pattern <- paste0("datasus-resident-pop-", year, "-raw")
+```
+
+```{r}
+#| eval: false
+#| code-fold: false
+
+datasus_file <- here::here("data", paste0(datasus_file_pattern, ".zip"))
+
+req <-
+  paste0(
+    "ftp.datasus.gov.br/dissemin/publicos/IBGE/POPSVS/POPSBR",
+    year |> stringr::str_sub(start= -2),
+    ".zip"
+  ) |>
+  httr2::request() |>
+  httr2::req_progress() |>
+  httr2::req_perform(datasus_file)
+```
+
+### Unzipping the Population Data
+
+```{r}
+#| eval: false
+
+datasus_file <-
+  datasus_file |>
+  utils::unzip(exdir = here::here("data"), overwrite = TRUE)
+```
+
+```{r}
+#| eval: false
+
+datasus_file <- fs::file_move(
+  datasus_file,
+  here::here("data", paste0(datasus_file_pattern, ".csv"))
+)
+```
+
+```{r}
+#| eval: false
+
+fs::file_delete(
+  here::here("data", paste0(datasus_file_pattern, ".zip"))
+)
+```
+
+### Reading the Population Data
+
+```{r}
+#| echo: false
+
+datasus_file <- here::here("data", paste0(datasus_file_pattern, ".csv"))
+```
+
+```{r}
+#| code-fold: false
+
+datasus_data <-
+  datasus_file |>
+  foreign::read.dbf() |>
+  dplyr::as_tibble()
+```
+
+```{r}
+#| code-fold: false
+
+datasus_data |> dplyr::glimpse()
+```
+
+### Renaming the Population Data
+
+```{r}
+#| code-fold: false
+
+datasus_data <-
+  datasus_data |>
+  janitor::clean_names() |>
+  dplyr::rename(
+    municipality_code = cod_mun,
+    year = ano,
+    sex = sexo,
+    age = idade,
+    n = pop
+  )
+```
+
+```{r}
+#| code-fold: false
+
+datasus_data |> dplyr::glimpse()
+```
+
+### Tidying the Population Data
+
+```{r}
+#| code-fold: false
+
+datasus_data <-
+  datasus_data |>
+  dplyr::mutate(
+    dplyr::across(
+      .cols = where(is.factor),
+      .fns = ~ .x |> as.character() |> as.integer()
+    )
+  ) |>
+  dplyr::mutate(
+    sex = factor(
+      sex,
+      levels = 1:2,
+      labels = c("male", "female"),
+      ordered = FALSE
+    )
+  )
+```
+
+```{r}
+#| code-fold: false
+
+datasus_data |> dplyr::glimpse()
+```
+
+### Arranging the Population Data
+
+```{r}
+#| code-fold: false
+
+datasus_data <-
+  datasus_data |>
+  dplyr::arrange(
+    municipality_code,
+    year,
+    sex,
+    age
+  )
+```
+
+```{r}
+#| code-fold: false
+
+datasus_data |> dplyr::glimpse()
+```
+
+### Merging the Population Data with the Validated Data
+
+```{r}
+#| code-fold: false
+
+plot_data <-
+  datasus_data |>
+  dplyr::filter(dplyr::between(age, 0, 4)) |>
+  dplyr::mutate(
+    municipality_code =
+      municipality_code |>
+      stringr::str_sub(end = -2) |>
+      as.integer()
+  ) |>
+  dplyr::select(municipality_code, year, n) |>
+  dplyr::summarize(
+    n = n |> sum(na.rm = TRUE),
+    .by = c("municipality_code", "year")
+  ) |>
+  dplyr::right_join(
+    data |>
+      dplyr::mutate(year = lubridate::year(date)) |>
+      dplyr::arrange(dplyr::desc(date)) |>
+      dplyr::distinct(id, year, .keep_all = TRUE) |>
+      dplyr::summarize(
+        coverage = dplyr::n(),
+        mean_age = age |> mean(na.rm = TRUE),
+        mean_weight = weight |> mean(na.rm = TRUE),
+        mean_height = height |> mean(na.rm = TRUE),
+        .by = c("municipality_code", "year")
+      ),
+    by = c("municipality_code", "year")
+  ) |>
+  dplyr::rename(children = n)
+```
+
+```{r}
+#| code-fold: false
+
+plot_data |> dplyr::glimpse()
+```
+
+### Transforming the Merged Data
+
+```{r}
+#| code-fold: false
+
+plot_data <-
+  plot_data |>
+  dplyr::mutate(coverage_per = (coverage / children) * 100) |>
+  dplyr::rename(coverage = coverage) |>
+  dplyr::relocate(coverage_per, .after = coverage)
+```
+
+```{r}
+#| code-fold: false
+
+plot_data |> dplyr::glimpse()
+```
+
+### Validating the Merged Data
+
+::: {.callout-note}
+The number of children in each municipality is estimated. Therefore, if the SISVAN coverage exceeds the projected number of children, the number of children is set equal to the coverage.
+:::
+
+```{r}
+#| code-fold: false
+
+plot_data <-
+  plot_data |>
+  dplyr::mutate(
+    children = dplyr::case_when(
+      coverage > children ~ coverage,
+      TRUE ~ children
+    ),
+    coverage_per = (coverage / children) * 100
+  )
+```
+
+```{r}
+#| code-fold: false
+
+plot_data |> dplyr::glimpse()
+```
+
+### Adding State and Region Data
+
+```{r}
+#| code-fold: false
+
+brazil_municipalities <- orbis::get_brazil_municipality(
+  year = plotr:::get_closest_geobr_year(year, type = "municipality")
+)
+```
+
+```{r}
+#| code-fold: false
+
+plot_data <-
+  plot_data |>
+  dplyr::left_join(
+    brazil_municipalities |>
+      dplyr::mutate(
+      municipality_code =
+        municipality_code |>
+        stringr::str_sub(end = -2) |>
+        as.integer()
+    ) |>
+      dplyr::select(
+        municipality,
+        municipality_code,
+        state_code,
+        state,
+        federal_unit,
+      ),
+    by = "municipality_code"
+  ) |>
+  dplyr::mutate(region = orbis::get_brazil_region(federal_unit)) |>
+  dplyr::relocate(municipality, .after = municipality_code) |>
+  dplyr::relocate(
+    region,
+    state_code,
+    federal_unit,
+    state,
+    .before = municipality_code
+  )
+```
+
+```{r}
+#| code-fold: false
+
+plot_data |> dplyr::glimpse()
+```
+
+### Checking Relative Coverage
+
+The coverage observed here is slightly lower than that reported in @silva2023a[Table 2]. This difference may be explained by the use of different data sources (Fundação Oswaldo Cruz (Fiocruz) vs. OpenDataSUS).
+
+```{r}
+#| output: asis
+
+plot_data |>
+  dplyr::summarize(
+    children = children |> sum(na.rm = TRUE),
+    coverage = coverage |> sum(na.rm = TRUE),
+    .by = "region"
+  ) |>
+  dplyr::slice(c(1, 2, 5, 3, 4)) |>
+  dplyr::mutate(
+    coverage_per = (coverage / children) * 100
+  ) |>
+  dplyr::rename(
+    Region = region,
+    Children = children,
+    `SISVAN coverage` = coverage,
+    `SISVAN coverage (%)` = coverage_per
+  ) |>
+  pal::pipe_table() |>
+  pal::cat_lines()
+```
+
+```{r}
+#| output: asis
+
+plot_data |>
+  dplyr::summarize(
+    children = children |> sum(na.rm = TRUE),
+    coverage = coverage |> sum(na.rm = TRUE),
+    .by = "state"
+  ) |>
+  dplyr::arrange(state) |>
+  dplyr::mutate(
+    coverage_per = (coverage / children) * 100
+  ) |>
+  dplyr::rename(
+    State = state,
+    Children = children,
+    `SISVAN coverage` = coverage,
+    `SISVAN coverage (%)` = coverage_per
+  ) |>
+  pal::pipe_table() |>
+  pal::cat_lines()
+```
+
+### Plotting SISVAN Coverage (%) by Municipality
+
+```{r}
+#| eval: false
+#| include: false
+
+grDevices::dev.off()
+```
+
+```{r}
+brand_div_palette <- function(x) {
+  brandr:::make_color_ramp(
+    n_prop = x,
+    colors = c(
+      brandr::get_brand_color("dark-red"),
+      # brandr::get_brand_color("white"),
+      brandr::get_brand_color_mix(
+        position = 950,
+        color_1 = "dark-red",
+        color_2 = "dark-red-triadic-blue",
+        alpha = 0.5
+      ),
+      brandr::get_brand_color("dark-red-triadic-blue")
+    )
+  )
+}
+```
+
+```{r}
+plot_data |>
+  tidyr::drop_na(coverage_per) |>
+  plotr:::plot_hist(
+    col = "coverage_per",
+    density_line_color = "red",
+    x_label = "SISVAN coverage (%)"
+  )
+```
+
+```{r}
+plot_data |>
+  tidyr::drop_na(coverage_per, municipality_code) |>
+  plotr:::plot_brazil_municipality(
+    col_fill = "coverage_per",
+    col_code = "municipality_code",
+    year = plotr:::get_closest_geobr_year(year, type = "municipality"),
+    comparable_areas = FALSE,
+    breaks = seq(0, 100, 25),
+    reverse = FALSE,
+    limits = c(0, 100),
+    palette = brand_div_palette
+  )
+```
 
 ## License
 
@@ -536,19 +972,19 @@ License](https://creativecommons.org/licenses/by/4.0/).
 
 To cite this work, please use the following format:
 
-Vartanian, D.; & Schettino, J. P. J. (2025). *A pipeline for cleaning and validating SISVAN nutritional data* \[Report\]. Sustentarea Research and Extension Group at the University of São Paulo. <https://sustentarea.github.io/sisvan-nutritional-data/>
+Vartanian, D.; & Schettino, J. P. J. (2025). *A pipeline for cleaning and validating the SISVAN nutritional status dataset* \[Report\]. Sustentarea Research and Extension Group at the University of São Paulo. <https://sustentarea.github.io/sisvan-nutritional-status/>
 
 A BibTeX entry for LaTeX users is
 
 ```
 @techreport{vartanian2025,
-  title = {A pipeline for cleaning and validating SISVAN nutritional data},
+  title = {A pipeline for cleaning and validating the SISVAN nutritional status dataset},
   author = {{Daniel Vartanian} and {João Pedro Junqueira Schettino}},
   year = {2025},
   address = {São Paulo},
   institution = {Sustentarea Research and Extension Group at the University of São Paulo},
   langid = {en},
-  url = {https://sustentarea.github.io/sisvan-nutritional-data/}
+  url = {https://sustentarea.github.io/sisvan-nutritional-status/}
 }
 ```
 
