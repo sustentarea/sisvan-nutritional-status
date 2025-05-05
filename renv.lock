@@ -2013,36 +2013,6 @@
       "Maintainer": "Hadley Wickham <hadley@rstudio.com>",
       "Repository": "RSPM"
     },
-    "foreign": {
-      "Package": "foreign",
-      "Version": "0.8-90",
-      "Source": "Repository",
-      "Priority": "recommended",
-      "Date": "2025-03-31",
-      "Title": "Read Data Stored by 'Minitab', 'S', 'SAS', 'SPSS', 'Stata', 'Systat', 'Weka', 'dBase', ...",
-      "Depends": [
-        "R (>= 4.0.0)"
-      ],
-      "Imports": [
-        "methods",
-        "utils",
-        "stats"
-      ],
-      "Authors@R": "c( person(\"R Core Team\", email = \"R-core@R-project.org\", role = c(\"aut\", \"cph\", \"cre\"), comment = c(ROR = \"02zz1nj61\")), person(\"Roger\", \"Bivand\", role = c(\"ctb\", \"cph\")), person(c(\"Vincent\", \"J.\"), \"Carey\", role = c(\"ctb\", \"cph\")), person(\"Saikat\", \"DebRoy\", role = c(\"ctb\", \"cph\")), person(\"Stephen\", \"Eglen\", role = c(\"ctb\", \"cph\")), person(\"Rajarshi\", \"Guha\", role = c(\"ctb\", \"cph\")), person(\"Swetlana\", \"Herbrandt\", role = \"ctb\"), person(\"Nicholas\", \"Lewin-Koh\", role = c(\"ctb\", \"cph\")), person(\"Mark\", \"Myatt\", role = c(\"ctb\", \"cph\")), person(\"Michael\", \"Nelson\", role = \"ctb\"), person(\"Ben\", \"Pfaff\", role = \"ctb\"), person(\"Brian\", \"Quistorff\", role = \"ctb\"), person(\"Frank\", \"Warmerdam\", role = c(\"ctb\", \"cph\")), person(\"Stephen\", \"Weigand\", role = c(\"ctb\", \"cph\")), person(\"Free Software Foundation, Inc.\", role = \"cph\"))",
-      "Contact": "see 'MailingList'",
-      "Copyright": "see file COPYRIGHTS",
-      "Description": "Reading and writing data stored by some versions of 'Epi Info', 'Minitab', 'S', 'SAS', 'SPSS', 'Stata', 'Systat', 'Weka', and for reading and writing some 'dBase' files.",
-      "ByteCompile": "yes",
-      "Biarch": "yes",
-      "License": "GPL (>= 2)",
-      "BugReports": "https://bugs.r-project.org",
-      "MailingList": "R-help@r-project.org",
-      "URL": "https://svn.r-project.org/R-packages/trunk/foreign/",
-      "NeedsCompilation": "yes",
-      "Author": "R Core Team [aut, cph, cre] (02zz1nj61), Roger Bivand [ctb, cph], Vincent J. Carey [ctb, cph], Saikat DebRoy [ctb, cph], Stephen Eglen [ctb, cph], Rajarshi Guha [ctb, cph], Swetlana Herbrandt [ctb], Nicholas Lewin-Koh [ctb, cph], Mark Myatt [ctb, cph], Michael Nelson [ctb], Ben Pfaff [ctb], Brian Quistorff [ctb], Frank Warmerdam [ctb, cph], Stephen Weigand [ctb, cph], Free Software Foundation, Inc. [cph]",
-      "Maintainer": "R Core Team <R-core@R-project.org>",
-      "Repository": "CRAN"
-    },
     "fpeek": {
       "Package": "fpeek",
       "Version": "0.1.2",
@@ -2521,23 +2491,25 @@
       ],
       "Imports": [
         "checkmate (>= 2.3.2)",
-        "cli (>= 3.6.3)",
+        "cli (>= 3.6.5)",
         "clipr (>= 0.8.0)",
         "dplyr (>= 1.1.4)",
-        "fs (>= 1.6.5)",
+        "fs (>= 1.6.6)",
+        "fpeek (>= 0.1.2)",
         "lifecycle (>= 1.0.4)",
         "prettycheck",
-        "purrr (>= 1.0.2)",
+        "purrr (>= 1.0.4)",
         "readr (>= 2.1.5)",
         "stringdist (>= 0.9.15)",
         "stringr (>= 1.5.1)"
       ],
       "Suggests": [
         "covr (>= 3.6.4)",
-        "knitr (>= 1.49)",
+        "datasets (>= 4.4)",
+        "knitr (>= 1.50)",
         "mockr (>= 0.2.1)",
         "spelling (>= 2.3.1)",
-        "testthat (>= 3.2.2)"
+        "testthat (>= 3.2.3)"
       ],
       "Config/testthat/edition": "3",
       "Encoding": "UTF-8",
@@ -2553,7 +2525,7 @@
       "RemoteUsername": "danielvartan",
       "RemoteRepo": "groomr",
       "RemoteRef": "main",
-      "RemoteSha": "0c53a34790409f87af997e88a7f7055a4aa5f8e1",
+      "RemoteSha": "ba4c0d8ef7f2554d1b75b241c02955f6e49eec88",
       "Remotes": "github::danielvartan/prettycheck"
     },
     "gss": {
@@ -2660,6 +2632,55 @@
       "Author": "Hannah Frick [aut, cre] (<https://orcid.org/0000-0002-6049-5258>), Davis Vaughan [aut], Max Kuhn [aut], Posit Software, PBC [cph, fnd]",
       "Maintainer": "Hannah Frick <hannah@posit.co>",
       "Repository": "RSPM"
+    },
+    "haven": {
+      "Package": "haven",
+      "Version": "2.5.4",
+      "Source": "Repository",
+      "Title": "Import and Export 'SPSS', 'Stata' and 'SAS' Files",
+      "Authors@R": "c( person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", role = c(\"aut\", \"cre\")), person(\"Evan\", \"Miller\", role = c(\"aut\", \"cph\"), comment = \"Author of included ReadStat code\"), person(\"Danny\", \"Smith\", role = \"aut\"), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\")) )",
+      "Description": "Import foreign statistical formats into R via the embedded 'ReadStat' C library, <https://github.com/WizardMac/ReadStat>.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://haven.tidyverse.org, https://github.com/tidyverse/haven, https://github.com/WizardMac/ReadStat",
+      "BugReports": "https://github.com/tidyverse/haven/issues",
+      "Depends": [
+        "R (>= 3.6)"
+      ],
+      "Imports": [
+        "cli (>= 3.0.0)",
+        "forcats (>= 0.2.0)",
+        "hms",
+        "lifecycle",
+        "methods",
+        "readr (>= 0.1.0)",
+        "rlang (>= 0.4.0)",
+        "tibble",
+        "tidyselect",
+        "vctrs (>= 0.3.0)"
+      ],
+      "Suggests": [
+        "covr",
+        "crayon",
+        "fs",
+        "knitr",
+        "pillar (>= 1.4.0)",
+        "rmarkdown",
+        "testthat (>= 3.0.0)",
+        "utf8"
+      ],
+      "LinkingTo": [
+        "cpp11"
+      ],
+      "VignetteBuilder": "knitr",
+      "Config/Needs/website": "tidyverse/tidytemplate",
+      "Config/testthat/edition": "3",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.2.3",
+      "SystemRequirements": "GNU make, zlib: zlib1g-dev (deb), zlib-devel (rpm)",
+      "NeedsCompilation": "yes",
+      "Author": "Hadley Wickham [aut, cre], Evan Miller [aut, cph] (Author of included ReadStat code), Danny Smith [aut], Posit Software, PBC [cph, fnd]",
+      "Maintainer": "Hadley Wickham <hadley@posit.co>",
+      "Repository": "CRAN"
     },
     "here": {
       "Package": "here",
@@ -3348,6 +3369,54 @@
       "Repository": "RSPM",
       "Encoding": "UTF-8"
     },
+    "labelled": {
+      "Package": "labelled",
+      "Version": "2.14.0",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Manipulating Labelled Data",
+      "Maintainer": "Joseph Larmarange <joseph@larmarange.net>",
+      "Authors@R": "c( person(\"Joseph\", \"Larmarange\", email = \"joseph@larmarange.net\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0001-7097-700X\")), person(\"Daniel\", \"Ludecke\", role = \"ctb\"), person(\"Hadley\", \"Wickham\", role = \"ctb\"), person(\"Michal\", \"Bojanowski\", role = \"ctb\"), person(\"François\", \"Briatte\", role = \"ctb\") )",
+      "Description": "Work with labelled data imported from 'SPSS' or 'Stata' with 'haven' or 'foreign'. This package provides useful functions to deal with \"haven_labelled\" and \"haven_labelled_spss\" classes introduced by 'haven' package.",
+      "License": "GPL (>= 3)",
+      "Encoding": "UTF-8",
+      "Depends": [
+        "R (>= 3.2)"
+      ],
+      "Imports": [
+        "haven (>= 2.4.1)",
+        "cli",
+        "dplyr (>= 1.1.0)",
+        "lifecycle",
+        "rlang (>= 1.1.0)",
+        "vctrs",
+        "stringr",
+        "tidyr",
+        "tidyselect"
+      ],
+      "Suggests": [
+        "testthat (>= 3.2.0)",
+        "knitr",
+        "rmarkdown",
+        "questionr",
+        "snakecase",
+        "spelling"
+      ],
+      "Enhances": [
+        "memisc"
+      ],
+      "URL": "https://larmarange.github.io/labelled/, https://github.com/larmarange/labelled",
+      "BugReports": "https://github.com/larmarange/labelled/issues",
+      "VignetteBuilder": "knitr",
+      "LazyData": "true",
+      "RoxygenNote": "7.3.2",
+      "Language": "en-US",
+      "Config/testthat/edition": "3",
+      "Config/Needs/check": "memisc",
+      "NeedsCompilation": "no",
+      "Author": "Joseph Larmarange [aut, cre] (<https://orcid.org/0000-0001-7097-700X>), Daniel Ludecke [ctb], Hadley Wickham [ctb], Michal Bojanowski [ctb], François Briatte [ctb]",
+      "Repository": "CRAN"
+    },
     "later": {
       "Package": "later",
       "Version": "1.4.2",
@@ -3968,7 +4037,7 @@
       "RemoteUsername": "danielvartan",
       "RemoteRepo": "orbis",
       "RemoteRef": "main",
-      "RemoteSha": "0d840fa6a0063689a1d54d1d1f5f0711e7f27618",
+      "RemoteSha": "b9d794a707a23f5f461e54f1ae600527f4f11d65",
       "Remotes": "github::danielvartan/groomr, github::danielvartan/prettycheck,"
     },
     "osfr": {

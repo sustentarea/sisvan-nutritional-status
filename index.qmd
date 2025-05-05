@@ -6,13 +6,15 @@ source(here::here("R", "_setup.R"))
 ```
 
 <!-- badges: start -->
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://img.shields.io/badge/Repo%20Status-Active-12DA12.svg)](https://www.repostatus.org/#inactive)
+[![OSF DOI](https://img.shields.io/badge/OSF-10.17605/OSF.IO/8J94M-1284C5.svg)](https://doi.org/10.17605/OSF.IO/8J94M)
 [![License: MIT](https://img.shields.io/badge/License-MIT-10D810.svg)](https://choosealicense.com/licenses/mit/)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 <!-- badges: end -->
 
 ## Overview
 
-This report contains a pipeline for cleaning and validation of the SISVAN nutritional status dataset. The main goal is to provide a reliable workflow for processing and analyzing nutritional data from Brazil's Food and Nutrition Surveillance System ([SISVAN](https://sisaps.saude.gov.br/sisvan/)).
+This report contains a reproducible pipeline for processing [SISVAN](https://sisaps.saude.gov.br/sisvan/) microdata on nutritional status monitoring in Brazil (2008–2023). The main goal is to provide a open and reliable workflow for processing these data, supporting research and informed public policy decisions.
 
 ::: {.callout-warning}
 This pipeline is still under development and may not be fully functional.
@@ -26,7 +28,17 @@ The Food and Nutrition Surveillance System ([SISVAN](https://sisaps.saude.gov.br
 
 Multiple factors contribute to these quality concerns, including the lack of standardized measurement protocols, variability in staff training, inconsistencies in data entry and processing, and incomplete population coverage [@bagni2015; @corsi2017; @perumal2020]. To assess and improve data quality, several indicators have been proposed and applied, such as population coverage [@nascimento2017; @mourao2020], completeness of birth dates and anthropometric measurements [@finaret2018; @nannan2019], digit preference for age, height, and weight [@lyons-amos2017; @bopp2008], the percentage of biologically implausible values [@lawman2015], and the dispersion and distribution of standardized weight and height measurements [@perumal2020; @mei2007].
 
-In light of this, there is a clear need for a systematic pipeline for cleaning and validating SISVAN data, aiming to identify, correct, or remove problematic records and ensure greater consistency, completeness, and plausibility of the information for use in research and public policy.
+In light of this, there is a need for an open and reproducible pipeline for processing SISVAN microdata, aiming to identify, correct, or remove problematic records and ensure greater consistency, completeness, and plausibility of the information for use in research and public policy.
+
+## Data Availability
+
+::: {style="text-align: left;"}
+[![](https://img.shields.io/badge/OSF-10.17605/OSF.IO/8J94M-1284C5.svg)](https://doi.org/10.17605/OSF.IO/8J94M)
+:::
+
+The processed data are available in both `csv` and `rds` formats via a dedicated repository on the Open Science Framework ([OSF](https://osf.io/)), accessible [here](https://doi.org/10.17605/OSF.IO/8J94M). A metadata file is included alongside the validated data. You can also access these files directly from R using the [`osfr`](https://docs.ropensci.org/osfr/) package.
+
+A backup copy of the raw data is also available in OSF. You can access it [here](https://doi.org/10.17605/OSF.IO/SY8EC).
 
 ## Methods
 
@@ -34,10 +46,11 @@ In light of this, there is a clear need for a systematic pipeline for cleaning a
 
 The data used in this analysis come from the following sources:
 
-- Brazil’s Food and Nutrition Surveillance System (SISVAN), which provides the nutritional status dataset used as the primary data source [@sisvana].
-- The Brazilian Institute of Geography and Statistics (IBGE), which supplies population estimates by municipality, age, and sex [@ibge2025].
+- Brazil’s Food and Nutrition Surveillance System ([SISVAN](https://sisaps.saude.gov.br/sisvan/)), which provides microdata on nutritional status monitoring in Brazil [@sisvana].
+- The Brazilian Institute of Geography and Statistics ([IBGE](https://www.ibge.gov.br/)), which provides official territorial data for Brazilian municipalities. These data were accessed using the [`orbis`](https://danielvartan.github.io/orbis/) and [`geobr`](https://ipeagit.github.io/geobr) R packages [@vartanianq; @pereira].
+- The Department of Informatics of the Brazilian Unified Health System ([DATASUS](https://datasus.saude.gov.br/)) platform, which provides annual population estimates for Brazil by municipality, age, and sex for the period 2000-2024 [@datasusb]. For practicality and better organization, the DATASUS data used in this pipeline is provided through a separate reproducible pipeline, available [here](https://sustentarea.github.io/datasus-pop-estimates/) [@vartanian2025b].
 
-For detailed technical documentation on the SISVAN dataset, refer to the [technical note](http://tabnet.datasus.gov.br/cgi/SISVAN/CNV/notas_sisvan.html) (in Portuguese).
+For technical information about the raw dataset, see the official [technical note](http://tabnet.datasus.gov.br/cgi/SISVAN/CNV/notas_sisvan.html) (in Portuguese).
 
 ### Data Munging
 
@@ -55,9 +68,9 @@ Data science workflow created by Wickham, Çetinkaya-Runde, and Grolemund.
 
 ### Data Validation
 
-Different validation methods were used to ensure the quality of the data:
+Different validation techniques were used to ensure data quality and reliability:
 
-- The amount of data imported from the raw files were compared to the amount of data returned by [SISVAN's online data aggregator tool](https://sisaps.saude.gov.br/sisvan/relatoriopublico/).
+- The amount of data imported from the raw files were compared to the amount of data returned by [SISVAN Online Data Access Tool](https://sisaps.saude.gov.br/sisvan/relatoriopublico/).
 - Duplicates were removed based on distinct combinations of the variables `id`, `age`, `date` (date of the individual's nutritional assessment), `weight`, and `height`.
 - The number of nutritional assessments were compared to the estimated number of children in the population.
 
@@ -69,7 +82,7 @@ The Tidyverse [code style guide](https://style.tidyverse.org/) and [design princ
 
 ### Reproducibility
 
-All the analyses are fully reproducible and can be run again at any time. See the [README](hhttps://github.com/danielvartan/sisvan-nutritional-status/blob/main/README.md) file in the code repository to learn how to run them.
+The pipeline is fully reproducible and can be run again at any time. See the [README](https://github.com/danielvartan/datasus-pop-estimates/blob/main/README.md) file in the code repository to learn how to run it.
 
 ## Setting the Environment
 
@@ -77,27 +90,28 @@ All the analyses are fully reproducible and can be run again at any time. See th
 #| eval: false
 #| code-fold: false
 
-library(brandr) # github.com/danielvartan/brandr
+library(brandr)
 library(cli)
 library(dplyr)
-library(fpeek)
 library(fs)
-library(foreign)
 library(ggplot2)
+library(groomr) # github.com/danielvartan/groomr
 library(here)
 library(httr2)
 library(lubridate)
 library(orbis) # github.com/danielvartan/orbis
+library(osfr)
 library(pal) # gitlab.com/rpkg.dev/pal
 library(plotr) # github.com/danielvartan/plotr
 library(readr)
-library(rutils) # github.com/danielvartan/rutils
 library(tidyr)
 library(utils)
 library(vroom)
 ```
 
 ```{r}
+#| eval: false
+#| include: false
 #| code-fold: false
 
 source(here::here("R", "waz.R"))
@@ -113,10 +127,6 @@ library(vroom)
 
 ## Setting the Initial Variables
 
-::: {.callout-note}
-If you need data for additional years, simply run this pipeline within a loop over the desired years.
-:::
-
 ```{r}
 #| code-fold: false
 
@@ -129,7 +139,29 @@ year <- 2017
 age_limits <- c(0, 4)
 ```
 
+::: {.callout-note}
+Click [here](https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISVAN/estado_nutricional/Dicion%C3%A1rio+de+Dados+-+Estado+Nutricional.pdf) to access the microdata data dictionary (in Portuguese).
+:::
+
+```{r}
+#| code-fold: false
+
+col_selection <- c(
+  "CO_PESSOA_SISVAN",
+  "CO_MUNICIPIO_IBGE",
+  "DT_ACOMPANHAMENTO",
+  "SG_SEXO",
+  "NU_IDADE_ANO",
+  "NU_PESO",
+  "NU_ALTURA"
+)
+```
+
 ## Downloading the Data
+
+::: {.callout-note}
+SISVAN microdata files are very large. For practical reasons, some code chunks have `eval: false` set to prevent downloading the data each time the report is rendered. When running the pipeline in a loop or for full automation, remove these lines to enable automatic downloading.
+:::
 
 ```{r}
 if (!dir.exists(here::here("data"))) dir.create("data")
@@ -138,14 +170,14 @@ if (!dir.exists(here::here("data"))) dir.create("data")
 ```{r}
 #| code-fold: false
 
-file_pattern <- paste0("sisvan-nutritional-status-", year, "-raw")
+raw_file_pattern <- paste0("raw-", year)
 ```
 
 ```{r}
 #| eval: false
 #| code-fold: false
 
-file <- here::here("data", paste0(file_pattern, ".zip"))
+file <- here::here("data", paste0(raw_file_pattern, ".zip"))
 
 paste0(
     "https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISVAN/",
@@ -171,13 +203,15 @@ file <-
 ```{r}
 #| eval: false
 
-file <- fs::file_move(file, here::here("data", paste0(file_pattern, ".csv")))
+file <-
+  file |>
+  fs::file_move(here::here("data", paste0(raw_file_pattern, ".csv")))
 ```
 
 ```{r}
 #| eval: false
 
-fs::file_delete(here::here("data", paste0(file_pattern, ".zip")))
+fs::file_delete(here::here("data", paste0(raw_file_pattern, ".zip")))
 ```
 
 ## Checking Data Dimensions
@@ -185,38 +219,21 @@ fs::file_delete(here::here("data", paste0(file_pattern, ".zip")))
 ```{r}
 #| echo: false
 
-file <- here::here("data", paste0(file_pattern, ".csv"))
+raw_file_pattern <- paste0("raw-", year)
+
+file <- here::here("data", paste0(raw_file_pattern, ".csv"))
 ```
 
 ```{r}
 #| code-fold: false
 
-cols <-
-  file |>
-  readr::read_delim(
-    delim = ";",
-    col_names = FALSE,
-    n_max = 1,
-    progress = FALSE
-  ) |>
-  rutils::shush() |>
-  ncol()
-
-rows <- fpeek::peek_count_lines(file)
-cells <- cols * rows
-
-cli::cli_inform(paste0(
-  "The file has ",
-  "{.strong {cli::col_red(prettyNum(cols, big.mark = ','))}} columns, ",
-  "{.strong {cli::col_green(prettyNum(rows, big.mark = ','))}} rows, and ",
-  "{.strong {cli::col_blue(prettyNum(cells, big.mark = ','))}} cells."
-))
+file |> groomr::peek_csv_file(delim = ";", skip = 0, has_header = TRUE)
 ```
 
 ## Reading and Filtering the Data
 
 ::: {.callout-note}
-Click [here](https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISVAN/estado_nutricional/Dicion%C3%A1rio+de+Dados+-+Estado+Nutricional.pdf) to access the raw data dictionary (in Portuguese).
+We use the [`vroom`](https://vroom.r-lib.org/) R package together with the [AWK](https://en.wikipedia.org/wiki/AWK) programming language to efficiently handle large datasets and mitigate memory issues. This approach allows the pipeline to run locally on most machines, though we recommend a minimum of 12 GB of RAM for optimal performance. Alternatively, the pipeline can also be executed on cloud platforms such as [Google Colab](https://colab.research.google.com/) or [RStudio Cloud](https://rstudio.cloud/).
 :::
 
 ```{r}
@@ -302,7 +319,7 @@ schema <- vroom::cols(
 ```
 
 ::: {.callout-important}
-You may see warning messages about failed parsing of some columns. These warnings are expected due to minor inconsistencies in the SISVAN raw data and do not affect the overall analysis.
+You may see warning messages about failed parsing. These warnings are expected due to minor inconsistencies in the SISVAN raw data and do not affect the overall analysis.
 :::
 
 ```{r}
@@ -324,15 +341,7 @@ data <-
     delim = ";",
     col_names = col_names,
     col_types = schema,
-    col_select =  c(
-      "CO_PESSOA_SISVAN",
-      "CO_MUNICIPIO_IBGE",
-      "DT_ACOMPANHAMENTO",
-      "SG_SEXO",
-      "NU_IDADE_ANO",
-      "NU_PESO",
-      "NU_ALTURA"
-    ),
+    col_select = dplyr::all_of(col_selection),
     id = NULL,
     skip = 0,
     n_max = Inf,
@@ -362,20 +371,13 @@ data <-
 ```
 
 ```{r}
-#| eval: false
-#| echo: false
-
-data |> vroom::problems()
-```
-
-```{r}
 #| warning: false
 #| code-fold: false
 
 data |> dplyr::glimpse()
 ```
 
-## Renaming the Data Variables
+## Renaming the Data
 
 ```{r}
 #| code-fold: false
@@ -418,7 +420,8 @@ data <-
         levels = c("male", "female"),
         ordered = FALSE
       )
-  )
+  ) |>
+  dplyr::relocate(id, date)
 ```
 
 ```{r}
@@ -429,27 +432,64 @@ data |> dplyr::glimpse()
 
 ## Transforming the Data
 
+### Adding State and Region Data
+
+::: {.callout-note}
+The [`orbis`](https://danielvartan.github.io/orbis/) R package retrieves state and region information using the [`geobr`](https://ipeagit.github.io/geobr) package, developed by the Brazilian Institute for Applied Economic Research ([IPEA](https://www.ipea.gov.br/)). The `geobr` package, in turn, is based on official data from the Brazilian Institute of Geography and Statistics ([IBGE](https://www.ibge.gov.br/)).
+:::
+
 ```{r}
-#| eval: false
-#| include: false
 #| code-fold: false
 
-# data <-
-#   data |>
-#   dplyr::mutate(
-#     waz = waz()
-#   )
+brazil_municipalities <- orbis::get_brazil_municipality(
+  year = plotr:::get_closest_geobr_year(year, type = "municipality")
+)
 ```
 
 ```{r}
 #| eval: false
 #| include: false
+
+brazil_municipalities |> dplyr::glimpse()
+```
+
+```{r}
+#| code-fold: false
+
+data <-
+  data |>
+  dplyr::left_join(
+    brazil_municipalities |>
+      dplyr::mutate(
+        municipality_code =
+          municipality_code |>
+          stringr::str_sub(end = -2) |>
+          as.integer()
+      ),
+    by = "municipality_code"
+  ) |>
+  dplyr::relocate(
+    id,
+    date,
+    region_code,
+    region,
+    state_code,
+    state,
+    federal_unit,
+    municipality_code,
+    municipality
+  )
+```
+
+```{r}
 #| code-fold: false
 
 data |> dplyr::glimpse()
 ```
 
-## Removing Duplicates
+## Validating the Data
+
+### Removing Duplicates
 
 ```{r}
 #| code-fold: false
@@ -473,6 +513,18 @@ data <-
 data |> dplyr::glimpse()
 ```
 
+```{r}
+#| eval: false
+#| include: false
+#| code-fold: false
+
+# data <-
+#   data |>
+#   dplyr::mutate(
+#     waz = waz()
+#   )
+```
+
 ## Arranging the Data
 
 ```{r}
@@ -481,6 +533,8 @@ data |> dplyr::glimpse()
 data <-
   data |>
   dplyr::arrange(
+    region_code,
+    state_code,
     municipality_code,
     date,
     sex,
@@ -496,376 +550,398 @@ data <-
 data |> dplyr::glimpse()
 ```
 
-## Saving the Valid Data
-
-```{r}
-#| eval: false
-
-data |>
-  readr::write_csv(
-    here::here(
-      "data",
-      paste0("sisvan-nutritional-status-", year, "-valid.csv")
-    )
-  )
-```
-
-```{r}
-#| eval: false
-
-data |>
-  readr::write_rds(
-    here::here(
-      "data",
-      paste0("sisvan-nutritional-status-", year, "-valid.rds")
-    )
-  )
-```
-
 ## Data Dictionary
 
-- `id`: Unique identifier for the individual.
-- `municipality_code`: IBGE code of the municipality.
-- `date`: Date of the individual's nutritional assessment.
-- `sex`: Sex of the individual.
-- `age`: Age of the individual in years.
-- `weight`: Weight of the individual in kilograms.
-- `height`: Height of the individual in centimeters.
+```{r}
+metadata <-
+  data |>
+  labelled::`var_label<-`(
+    list(
+      id = "Unique identifier of the individual",
+      date = "Date of the individual's nutritional assessment",
+      region_code = "IBGE region code",
+      region = "Region name",
+      state_code = "IBGE state code",
+      state = "State name",
+      federal_unit = "Federal unit name",
+      municipality_code = "IBGE municipality code",
+      municipality = "Municipality name",
+      sex = "Sex of the individual",
+      age = "Age of the individual in years",
+      weight = "Weight of the individual in kilograms",
+      height = "Height of the individual in centimeters"
+    )
+  ) |>
+  labelled::generate_dictionary(details = "full") |>
+  labelled::convert_list_columns_to_character()
+```
+
+```{r}
+metadata
+```
 
 ```{r}
 data
 ```
 
-<!-- Upload data to OSF! -->
+## Saving the Valid Data
 
-## Visualizing the Data
-
-### Downloading the Estimates of the Population Data
+### Data
 
 ```{r}
-#| code-fold: false
-
-datasus_file_pattern <- paste0("datasus-resident-pop-", year, "-raw")
-```
-
-```{r}
-#| eval: false
-#| code-fold: false
-
-datasus_file <- here::here("data", paste0(datasus_file_pattern, ".zip"))
-
-req <-
-  paste0(
-    "ftp.datasus.gov.br/dissemin/publicos/IBGE/POPSVS/POPSBR",
-    year |> stringr::str_sub(start= -2),
-    ".zip"
-  ) |>
-  httr2::request() |>
-  httr2::req_progress() |>
-  httr2::req_perform(datasus_file)
-```
-
-### Unzipping the Population Data
-
-```{r}
-#| eval: false
-
-datasus_file <-
-  datasus_file |>
-  utils::unzip(exdir = here::here("data"), overwrite = TRUE)
-```
-
-```{r}
-#| eval: false
-
-datasus_file <- fs::file_move(
-  datasus_file,
-  here::here("data", paste0(datasus_file_pattern, ".csv"))
+valid_file_pattern <- paste0(
+  "valid-",
+  year,
+  "-age-",
+  age_limits[1],
+  "-",
+  age_limits[2]
 )
 ```
 
 ```{r}
-#| eval: false
+data |>
+  readr::write_csv(
+    here::here("data", paste0(valid_file_pattern, ".csv"))
+  )
+```
 
-fs::file_delete(
-  here::here("data", paste0(datasus_file_pattern, ".zip"))
+```{r}
+data |>
+  readr::write_rds(
+    here::here("data", paste0(valid_file_pattern, ".rds"))
+  )
+```
+
+### Metadata
+
+```{r}
+metadata_file_pattern <- paste0(
+  "metadata-",
+  year,
+  "-age-",
+  age_limits[1],
+  "-",
+  age_limits[2]
 )
 ```
 
-### Reading the Population Data
-
 ```{r}
-#| echo: false
-
-datasus_file <- here::here("data", paste0(datasus_file_pattern, ".csv"))
-```
-
-```{r}
-#| code-fold: false
-
-datasus_data <-
-  datasus_file |>
-  foreign::read.dbf() |>
-  dplyr::as_tibble()
-```
-
-```{r}
-#| code-fold: false
-
-datasus_data |> dplyr::glimpse()
-```
-
-### Renaming the Population Data
-
-```{r}
-#| code-fold: false
-
-datasus_data <-
-  datasus_data |>
-  janitor::clean_names() |>
-  dplyr::rename(
-    municipality_code = cod_mun,
-    year = ano,
-    sex = sexo,
-    age = idade,
-    n = pop
+metadata |>
+  readr::write_csv(
+    here::here("data", paste0(metadata_file_pattern, ".csv"))
   )
 ```
 
 ```{r}
-#| code-fold: false
-
-datasus_data |> dplyr::glimpse()
+metadata |>
+  readr::write_rds(
+    here::here("data", paste0(metadata_file_pattern, ".rds"))
+  )
 ```
 
-### Tidying the Population Data
+<!-- ## Uploading the Data to OSF (Optional) -->
+
+<!-- Only repository administrators can upload data to OSF. -->
+<!-- To enable uploads, set your `OSF_PAT` environment variable with a valid OSF personal access token. -->
+
+```{r}
+#| eval: false
+#| include: false
+
+Sys.getenv("OSF_PAT") |> osfr::osf_auth()
+```
+
+```{r}
+#| eval: false
+#| include: false
+
+valid_file_pattern <- paste0("beta-", valid_file_pattern)
+metadata_file_pattern <- paste0("beta-", metadata_file_pattern)
+
+osf_id <- paste0("https://osf.io/", "q7m9d")
+
+osfr::osf_upload(
+  x = osfr::osf_retrieve_node(osf_id),
+  path = c(
+    here::here("data", paste0(valid_file_pattern, ".csv")),
+    here::here("data", paste0(valid_file_pattern, ".rds")),
+    here::here("data", paste0(metadata_file_pattern, ".csv")),
+    here::here("data", paste0(metadata_file_pattern, ".rds"))
+  ),
+  conflicts = "overwrite"
+)
+```
+
+## Checking the Relative Coverage
+
+```{r}
+#| eval: false
+#| include: false
+
+valid_file_pattern <- paste0(
+  "valid-",
+  year,
+  "-age-",
+  age_limits[1],
+  "-",
+  age_limits[2]
+)
+
+data <- readr::read_rds(
+  here::here("data", paste0(valid_file_pattern, ".rds"))
+)
+```
+
+### Transforming the Data
+
+#### Removing Duplicates by Year
+
+::: {.callout-note}
+As described in @silva2023a[p. 4], to calculate SISVAN's total resident population coverage, only the most recent record for each individual within each year is retained for analysis.
+:::
 
 ```{r}
 #| code-fold: false
 
-datasus_data <-
-  datasus_data |>
-  dplyr::mutate(
-    dplyr::across(
-      .cols = where(is.factor),
-      .fns = ~ .x |> as.character() |> as.integer()
+data <-
+  data |>
+    dplyr::mutate(year = lubridate::year(date)) |>
+    dplyr::arrange(dplyr::desc(date)) |>
+    dplyr::distinct(id, year, .keep_all = TRUE) |>
+    dplyr::relocate(year, .after = date)
+```
+
+```{r}
+#| code-fold: false
+
+data |> dplyr::glimpse()
+```
+
+#### Summarizing the Data by Year
+
+```{r}
+#| code-fold: false
+
+data <-
+  data |>
+    dplyr::summarize(
+      coverage = dplyr::n(),
+      mean_age = age |> mean(na.rm = TRUE),
+      mean_weight = weight |> mean(na.rm = TRUE),
+      mean_height = height |> mean(na.rm = TRUE),
+      .by = c(
+        "year",
+        "region_code",
+        "state_code",
+        "municipality_code"
+      )
+    )
+```
+
+```{r}
+#| code-fold: false
+
+data |> dplyr::glimpse()
+```
+
+#### Adding Population Estimates
+
+::: {.callout-note}
+As described in the Methods section, the population estimates were obtained from the [DATASUS](https://datasus.saude.gov.br/) platform, which provides annual data by municipality, age, and sex for Brazil from 2000 to 2024 [@datasusb].
+
+To ensure reproducibility and organization, the DATASUS data used in this pipeline are processed and validated through a separate reproducible pipeline, available [here](https://sustentarea.github.io/datasus-pop-estimates/) [@vartanian2025b]. The validated datasets are downloaded directly from [OSF](https://osf.io/). For further details, refer to the linked pipeline.
+:::
+
+```{r}
+#| code-fold: false
+
+datasus_file_pattern <- paste0("datasus-pop-estimates-", year)
+```
+
+```{r}
+#| code-fold: false
+
+datasus_file <- here::here("data", paste0(datasus_file_pattern, ".rds"))
+
+if (!checkmate::test_file_exists(datasus_file)) {
+  osf_id <-
+    paste0("https://osf.io/", "h3pyd") |>
+    osfr::osf_retrieve_node() |>
+    osfr::osf_ls_files(
+      type = "file",
+      pattern = paste0("valid-", year, ".rds")
+    )
+
+  osfr::osf_download(
+    x = osf_id,
+    path = tempdir(),
+    conflicts = "overwrite"
+  ) |>
+    dplyr::pull(local_path) |>
+    fs::file_move(datasus_file)
+}
+
+pop_estimates <- datasus_file |> readr::read_rds()
+```
+
+```{r}
+#| eval: false
+#| include: false
+
+pop_estimates |> dplyr::glimpse()
+```
+
+```{r}
+#| code-fold: false
+
+data <-
+  pop_estimates |>
+  dplyr::filter(dplyr::between(age, age_limits[1], age_limits[2])) |>
+  dplyr::summarize(
+    n = n |> sum(na.rm = TRUE),
+    .by = c(
+      "year",
+      "region_code",
+      "state_code",
+      "municipality_code"
     )
   ) |>
-  dplyr::mutate(
-    sex = factor(
-      sex,
-      levels = 1:2,
-      labels = c("male", "female"),
-      ordered = FALSE
-    )
-  )
-```
-
-```{r}
-#| code-fold: false
-
-datasus_data |> dplyr::glimpse()
-```
-
-### Arranging the Population Data
-
-```{r}
-#| code-fold: false
-
-datasus_data <-
-  datasus_data |>
-  dplyr::arrange(
-    municipality_code,
-    year,
-    sex,
-    age
-  )
-```
-
-```{r}
-#| code-fold: false
-
-datasus_data |> dplyr::glimpse()
-```
-
-### Merging the Population Data with the Validated Data
-
-```{r}
-#| code-fold: false
-
-plot_data <-
-  datasus_data |>
-  dplyr::filter(dplyr::between(age, 0, 4)) |>
   dplyr::mutate(
     municipality_code =
       municipality_code |>
       stringr::str_sub(end = -2) |>
       as.integer()
   ) |>
-  dplyr::select(municipality_code, year, n) |>
-  dplyr::summarize(
-    n = n |> sum(na.rm = TRUE),
-    .by = c("municipality_code", "year")
-  ) |>
   dplyr::right_join(
-    data |>
-      dplyr::mutate(year = lubridate::year(date)) |>
-      dplyr::arrange(dplyr::desc(date)) |>
-      dplyr::distinct(id, year, .keep_all = TRUE) |>
-      dplyr::summarize(
-        coverage = dplyr::n(),
-        mean_age = age |> mean(na.rm = TRUE),
-        mean_weight = weight |> mean(na.rm = TRUE),
-        mean_height = height |> mean(na.rm = TRUE),
-        .by = c("municipality_code", "year")
-      ),
-    by = c("municipality_code", "year")
+    data,
+    by = c(
+      "year",
+      "region_code",
+      "state_code",
+      "municipality_code"
+    )
   ) |>
-  dplyr::rename(children = n)
+  dplyr::rename(population = n) |>
+  dplyr::relocate(population, .before = coverage)
 ```
 
 ```{r}
 #| code-fold: false
 
-plot_data |> dplyr::glimpse()
+data |> dplyr::glimpse()
 ```
 
-### Transforming the Merged Data
+### Validating the Data
+
+::: {.callout-note}
+The population value used here is an estimate. If the SISVAN coverage for a municipality exceeds the estimated population, the population value is adjusted to match the coverage.
+
+Note: At this stage, only the most recent record for each individual is retained.
+:::
 
 ```{r}
 #| code-fold: false
 
-plot_data <-
-  plot_data |>
-  dplyr::mutate(coverage_per = (coverage / children) * 100) |>
-  dplyr::rename(coverage = coverage) |>
+data <-
+  data |>
+  dplyr::mutate(
+    population = dplyr::case_when(
+      coverage > population ~ coverage,
+      TRUE ~ population
+    )
+  )
+```
+
+```{r}
+#| code-fold: false
+
+data |> dplyr::glimpse()
+```
+
+### Calculating Relative Coverage
+
+```{r}
+#| code-fold: false
+
+data <-
+  data |>
+  dplyr::mutate(coverage_per = (coverage / population) * 100) |>
   dplyr::relocate(coverage_per, .after = coverage)
 ```
 
 ```{r}
 #| code-fold: false
 
-plot_data |> dplyr::glimpse()
+data |> dplyr::glimpse()
 ```
 
-### Validating the Merged Data
+### Arranging the Data
+
+```{r}
+#| code-fold: false
+
+data <-
+  data |>
+  dplyr::arrange(
+    year,
+    region_code,
+    state_code,
+    municipality_code
+  )
+```
+
+```{r}
+#| code-fold: false
+
+data |> dplyr::glimpse()
+```
+
+### Checking Relative Coverage by Region
 
 ::: {.callout-note}
-The number of children in each municipality is estimated. Therefore, if the SISVAN coverage exceeds the projected number of children, the number of children is set equal to the coverage.
-:::
-
-```{r}
-#| code-fold: false
-
-plot_data <-
-  plot_data |>
-  dplyr::mutate(
-    children = dplyr::case_when(
-      coverage > children ~ coverage,
-      TRUE ~ children
-    ),
-    coverage_per = (coverage / children) * 100
-  )
-```
-
-```{r}
-#| code-fold: false
-
-plot_data |> dplyr::glimpse()
-```
-
-### Adding State and Region Data
-
-```{r}
-#| code-fold: false
-
-brazil_municipalities <- orbis::get_brazil_municipality(
-  year = plotr:::get_closest_geobr_year(year, type = "municipality")
-)
-```
-
-```{r}
-#| code-fold: false
-
-plot_data <-
-  plot_data |>
-  dplyr::left_join(
-    brazil_municipalities |>
-      dplyr::mutate(
-      municipality_code =
-        municipality_code |>
-        stringr::str_sub(end = -2) |>
-        as.integer()
-    ) |>
-      dplyr::select(
-        municipality,
-        municipality_code,
-        state_code,
-        state,
-        federal_unit,
-      ),
-    by = "municipality_code"
-  ) |>
-  dplyr::mutate(region = orbis::get_brazil_region(federal_unit)) |>
-  dplyr::relocate(municipality, .after = municipality_code) |>
-  dplyr::relocate(
-    region,
-    state_code,
-    federal_unit,
-    state,
-    .before = municipality_code
-  )
-```
-
-```{r}
-#| code-fold: false
-
-plot_data |> dplyr::glimpse()
-```
-
-### Checking Relative Coverage
-
 The coverage observed here is slightly lower than that reported in @silva2023a[Table 2]. This difference may be explained by the use of different data sources (Fundação Oswaldo Cruz (Fiocruz) vs. OpenDataSUS).
+:::
 
 ```{r}
 #| output: asis
 
-plot_data |>
+data |>
+  dplyr::mutate(region = orbis::get_brazil_region(region_code)) |>
   dplyr::summarize(
-    children = children |> sum(na.rm = TRUE),
+    population = population |> sum(na.rm = TRUE),
     coverage = coverage |> sum(na.rm = TRUE),
     .by = "region"
   ) |>
   dplyr::slice(c(1, 2, 5, 3, 4)) |>
-  dplyr::mutate(
-    coverage_per = (coverage / children) * 100
-  ) |>
+  dplyr::mutate(coverage_per = (coverage / population) * 100) |>
   dplyr::rename(
     Region = region,
-    Children = children,
+    Population = population,
     `SISVAN coverage` = coverage,
     `SISVAN coverage (%)` = coverage_per
   ) |>
   pal::pipe_table() |>
   pal::cat_lines()
 ```
+
+### Checking Relative Coverage by State
 
 ```{r}
 #| output: asis
 
-plot_data |>
+data |>
+  dplyr::mutate(state = orbis::get_brazil_state(state_code)) |>
   dplyr::summarize(
-    children = children |> sum(na.rm = TRUE),
+    population = population |> sum(na.rm = TRUE),
     coverage = coverage |> sum(na.rm = TRUE),
     .by = "state"
   ) |>
   dplyr::arrange(state) |>
-  dplyr::mutate(
-    coverage_per = (coverage / children) * 100
-  ) |>
+  dplyr::mutate(coverage_per = (coverage / population) * 100) |>
   dplyr::rename(
     State = state,
-    Children = children,
+    Population = population,
     `SISVAN coverage` = coverage,
     `SISVAN coverage (%)` = coverage_per
   ) |>
@@ -873,14 +949,7 @@ plot_data |>
   pal::cat_lines()
 ```
 
-### Plotting SISVAN Coverage (%) by Municipality
-
-```{r}
-#| eval: false
-#| include: false
-
-grDevices::dev.off()
-```
+## Visualizing the Relative Coverage
 
 ```{r}
 brand_div_palette <- function(x) {
@@ -902,17 +971,26 @@ brand_div_palette <- function(x) {
 ```
 
 ```{r}
-plot_data |>
+data |>
   tidyr::drop_na(coverage_per) |>
   plotr:::plot_hist(
     col = "coverage_per",
-    density_line_color = "red",
-    x_label = "SISVAN coverage (%)"
+    density_line_color = brandr::get_brand_color("red"),
+    x_label = "Coverage (%)",
+    print = FALSE
+  ) +
+  ggplot2::labs(
+    title = "SISVAN Coverage by Municipality (%)",
+    subtitle = paste0("Year: ", year),
+    caption = "Source: SISVAN"
   )
 ```
 
 ```{r}
-plot_data |>
+#| fig-height: 6
+#| fig-width: 8
+
+data |>
   tidyr::drop_na(coverage_per, municipality_code) |>
   plotr:::plot_brazil_municipality(
     col_fill = "coverage_per",
@@ -920,40 +998,63 @@ plot_data |>
     year = plotr:::get_closest_geobr_year(year, type = "municipality"),
     comparable_areas = FALSE,
     breaks = seq(0, 100, 25),
-    reverse = FALSE,
     limits = c(0, 100),
-    palette = brand_div_palette
+    palette = brand_div_palette,
+    print = FALSE
+  ) +
+  ggplot2::labs(
+    title = "SISVAN Coverage by Municipality (%)",
+    subtitle = paste0("Year: ", year),
+    caption = "Source: SISVAN"
   )
 ```
 
-## License
+```{r}
+#| eval: false
+#| include: false
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-10D810.svg)](https://choosealicense.com/licenses/mit/)
-[![License: CC BY
-4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
-
-The code in this repository is licensed under the [MIT License](https://opensource.org/license/mit/), while the documents are available under the [Creative Commons Attribution 4.0 International
-License](https://creativecommons.org/licenses/by/4.0/).
+grDevices::dev.off()
+```
 
 ## How to Cite
 
 To cite this work, please use the following format:
 
-Vartanian, D.; & Schettino, J. P. J. (2025). *A pipeline for cleaning and validating the SISVAN nutritional status dataset* \[Report\]. Sustentarea Research and Extension Group at the University of São Paulo. <https://sustentarea.github.io/sisvan-nutritional-status/>
+Vartanian, D., Schettino, J. P. J., & Carvalho, A. M. (2025). *A reproducible pipeline for processing SISVAN microdata on nutritional status monitoring in Brazil (2008-2023)* \[Report\]. Sustentarea Research and Extension Group at the University of São Paulo. <https://sustentarea.github.io/sisvan-nutritional-status>
 
 A BibTeX entry for LaTeX users is
 
 ```
 @techreport{vartanian2025,
-  title = {A pipeline for cleaning and validating the SISVAN nutritional status dataset},
-  author = {{Daniel Vartanian} and {João Pedro Junqueira Schettino}},
+  title = {A reproducible pipeline for processing SISVAN microdata on nutritional status monitoring in Brazil (2008-2023)},
+  author = {{Daniel Vartanian} and {João Pedro Junqueira Schettino} and {Aline Martins de Carvalho}},
   year = {2025},
   address = {São Paulo},
   institution = {Sustentarea Research and Extension Group at the University of São Paulo},
   langid = {en},
-  url = {https://sustentarea.github.io/sisvan-nutritional-status/}
+  url = {https://sustentarea.github.io/sisvan-nutritional-status}
 }
 ```
+
+## License
+
+::: {style="text-align: left;"}
+[![License: MIT](https://img.shields.io/badge/License-MIT-10D810.svg)](https://choosealicense.com/licenses/mit/)
+[![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+:::
+
+The code in this report is licensed under the [MIT License](https://opensource.org/license/mit/), while the documents are available under the [Creative Commons Attribution 4.0 International
+License](https://creativecommons.org/licenses/by/4.0/).
+
+## Acknowledgments
+
+![](images/sustentarea-icon.svg){style="width: 15%;"}
+
+This work is part of the [Sustentarea](https://www.fsp.usp.br/sustentarea) Research and Extension Group project: *Global syndemic: The impact of anthropogenic climate change on the health and nutrition of children under five years old attended by Brazil's public health system (SUS)*.
+
+![](images/cnpq-logo.svg){style="width: 25%;"}
+
+This work was supported by the Conselho Nacional de Desenvolvimento Científico e Tecnológico - Brazil ([CNPq](https://www.gov.br/cnpq/)).
 
 ## References {.unnumbered}
 

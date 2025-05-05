@@ -3,7 +3,6 @@ editor: source
 execute:
   cache: false # "Danger Will Robinson!"
   freeze: false # If you plan to use it, remember to disable it afterward!
-                # Goddammit! What did I tell you?
 
 project:
   type: website
@@ -12,11 +11,12 @@ project:
   post-render: "R/_post-render.R"
 
 title: >
-  A Pipeline for Cleaning and Validating the SISVAN Nutritional Status Dataset
-author: "Daniel Vartanian & João Pedro Junqueira Schettino"
+  A Reproducible Pipeline for Processing SISVAN Microdata on Nutritional Status
+  Monitoring in Brazil (2008-2023)
+author: "Daniel Vartanian, João Pedro J. Schettino, & Aline M. de Carvalho"
 keyword: >
-  nutrition, malnutrition, obesity, data science, data munging, rstats,
-  sisvan, brazil
+  pipelines, nutrition, malnutrition, obesity, data munging, data science,
+  rstats, open data, open science, sisvan, brazil
 date: today
 date-format: "YYYY-MM-DD"
 
@@ -38,7 +38,7 @@ website:
     background: "#272B33"
     right:
       - icon: github
-        href: https://sustentarea.github.io/sisvan-nutritional-status/
+        href: https://github.com/sustentarea/sisvan-nutritional-status/
         aria-label: GitHub
 
 lightbox:
