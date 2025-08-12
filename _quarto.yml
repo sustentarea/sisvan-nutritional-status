@@ -18,7 +18,7 @@ keyword: >
   pipelines, nutrition, malnutrition, obesity, data munging, data science,
   rstats, open data, open science, sisvan, brazil
 date: today
-date-format: "YYYY-MM-DD"
+date-format: long
 
 website:
   favicon: images/sustentarea-icon.svg

@@ -90,6 +90,7 @@ The pipeline is fully reproducible and can be run again at any time. See the [RE
 
 ```{r}
 #| code-fold: false
+#| output: false
 
 library(brandr)
 library(cli)
@@ -99,12 +100,15 @@ library(ggplot2)
 library(groomr) # github.com/danielvartan/groomr
 library(here)
 library(httr2)
+library(janitor)
+library(labelled)
 library(lubridate)
 library(orbis) # github.com/danielvartan/orbis
 library(osfr)
 library(pal) # gitlab.com/rpkg.dev/pal
 library(plotr) # github.com/danielvartan/plotr
 library(readr)
+library(stringr)
 library(tidyr)
 library(utils)
 library(vroom)
@@ -115,7 +119,7 @@ library(vroom)
 #| include: false
 #| code-fold: false
 
-source(here::here("R", "waz.R"))
+source(here("R", "waz.R"))
 ```
 
 ## Set the Initial Variables
@@ -157,7 +161,7 @@ SISVAN microdata files are very large. For practical reasons, some code chunks h
 :::
 
 ```{r}
-if (!dir.exists(here::here("data"))) dir.create("data")
+if (!dir.exists(here("data"))) dir.create("data")
 ```
 
 ```{r}
@@ -170,7 +174,7 @@ raw_file_pattern <- paste0("raw-", year)
 #| eval: false
 #| code-fold: false
 
-file <- here::here("data", paste0(raw_file_pattern, ".zip"))
+file <- here("data", paste0(raw_file_pattern, ".zip"))
 
 paste0(
     "https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISVAN/",
@@ -178,9 +182,9 @@ paste0(
     year,
     ".zip"
   ) |>
-  httr2::request() |>
-  httr2::req_progress() |>
-  httr2::req_perform(file)
+  request() |>
+  req_progress() |>
+  req_perform(file)
 ```
 
 ## Unzip the Data
@@ -190,7 +194,7 @@ paste0(
 
 file <-
   file |>
-  utils::unzip(exdir = here::here("data"), overwrite = TRUE)
+  unzip(exdir = here("data"), overwrite = TRUE)
 ```
 
 ```{r}
@@ -198,13 +202,13 @@ file <-
 
 file <-
   file |>
-  fs::file_move(here::here("data", paste0(raw_file_pattern, ".csv")))
+  file_move(here("data", paste0(raw_file_pattern, ".csv")))
 ```
 
 ```{r}
 #| eval: false
 
-fs::file_delete(here::here("data", paste0(raw_file_pattern, ".zip")))
+file_delete(here("data", paste0(raw_file_pattern, ".zip")))
 ```
 
 ## Check Data Dimensions
@@ -214,13 +218,13 @@ fs::file_delete(here::here("data", paste0(raw_file_pattern, ".zip")))
 
 raw_file_pattern <- paste0("raw-", year)
 
-file <- here::here("data", paste0(raw_file_pattern, ".csv"))
+file <- here("data", paste0(raw_file_pattern, ".csv"))
 ```
 
 ```{r}
 #| code-fold: false
 
-file |> groomr::peek_csv_file(delim = ";", skip = 0, has_header = TRUE)
+file |> peek_csv_file(delim = ";", skip = 0, has_header = TRUE)
 ```
 
 ## Read and Filter the Data
@@ -273,41 +277,41 @@ col_names <- c(
 ```{r}
 #| code-fold: false
 
-schema <- vroom::cols(
-  CO_ACOMPANHAMENTO = vroom::col_character(),
-  CO_PESSOA_SISVAN = vroom::col_character(),
-  ST_PARTICIPA_ANDI = vroom::col_character(),
-  CO_MUNICIPIO_IBGE = vroom::col_integer(),
-  SG_UF = vroom::col_factor(),
-  NO_MUNICIPIO = vroom::col_character(), # ? vroom::col_factor()
-  CO_CNES = vroom::col_integer(),
-  NU_IDADE_ANO = vroom::col_integer(),
-  NU_FASE_VIDA = vroom::col_character(), # decimal mark = "." (double)
-  DS_FASE_VIDA = vroom::col_factor(),
-  SG_SEXO = vroom::col_factor(),
-  CO_RACA_COR = vroom::col_character(),
-  DS_RACA_COR = vroom::col_factor(),
-  CO_POVO_COMUNIDADE = vroom::col_integer(),
-  DS_POVO_COMUNIDADE = vroom::col_factor(),
-  CO_ESCOLARIDADE = vroom::col_character(),
-  DS_ESCOLARIDADE = vroom::col_factor(),
-  DT_ACOMPANHAMENTO = vroom::col_date(),
-  NU_COMPETENCIA = vroom::col_integer(),
-  NU_PESO = vroom::col_double(),
-  NU_ALTURA = vroom::col_integer(),
-  DS_IMC = vroom::col_double(),
-  DS_IMC_PRE_GESTACIONAL = vroom::col_character(), # decimal mark = "." (double)
-  "PESO X IDADE" = vroom::col_factor(),
-  "PESO X ALTURA" = vroom::col_factor(),
-  "CRI. ALTURA X IDADE" = vroom::col_factor(),
-  "CRI. IMC X IDADE" = vroom::col_factor(),
-  "ADO. ALTURA X IDADE" = vroom::col_factor(),
-  "ADO. IMC X IDADE" = vroom::col_factor(),
-  CO_ESTADO_NUTRI_ADULTO = vroom::col_factor(),
-  CO_ESTADO_NUTRI_IDOSO = vroom::col_factor(),
-  CO_ESTADO_NUTRI_IMC_SEMGEST = vroom::col_factor(),
-  CO_SISTEMA_ORIGEM_ACOMP = vroom::col_integer(),
-  SISTEMA_ORIGEM_ACOMP = vroom::col_factor()
+schema <- cols(
+  CO_ACOMPANHAMENTO = col_character(),
+  CO_PESSOA_SISVAN = col_character(),
+  ST_PARTICIPA_ANDI = col_character(),
+  CO_MUNICIPIO_IBGE = col_integer(),
+  SG_UF = col_factor(),
+  NO_MUNICIPIO = col_character(), # ? col_factor()
+  CO_CNES = col_integer(),
+  NU_IDADE_ANO = col_integer(),
+  NU_FASE_VIDA = col_character(), # decimal mark = "." (double)
+  DS_FASE_VIDA = col_factor(),
+  SG_SEXO = col_factor(),
+  CO_RACA_COR = col_character(),
+  DS_RACA_COR = col_factor(),
+  CO_POVO_COMUNIDADE = col_integer(),
+  DS_POVO_COMUNIDADE = col_factor(),
+  CO_ESCOLARIDADE = col_character(),
+  DS_ESCOLARIDADE = col_factor(),
+  DT_ACOMPANHAMENTO = col_date(),
+  NU_COMPETENCIA = col_integer(),
+  NU_PESO = col_double(),
+  NU_ALTURA = col_integer(),
+  DS_IMC = col_double(),
+  DS_IMC_PRE_GESTACIONAL = col_character(), # decimal mark = "." (double)
+  "PESO X IDADE" = col_factor(),
+  "PESO X ALTURA" = col_factor(),
+  "CRI. ALTURA X IDADE" = col_factor(),
+  "CRI. IMC X IDADE" = col_factor(),
+  "ADO. ALTURA X IDADE" = col_factor(),
+  "ADO. IMC X IDADE" = col_factor(),
+  CO_ESTADO_NUTRI_ADULTO = col_factor(),
+  CO_ESTADO_NUTRI_IDOSO = col_factor(),
+  CO_ESTADO_NUTRI_IMC_SEMGEST = col_factor(),
+  CO_SISTEMA_ORIGEM_ACOMP = col_integer(),
+  SISTEMA_ORIGEM_ACOMP = col_factor()
 )
 ```
 
@@ -320,7 +324,7 @@ You may see warning messages about failed parsing. These warnings are expected d
 #| code-fold: false
 
 data <-
-  vroom::vroom(
+  vroom(
      # Uses `pipe()` and `awk` to filter data to avoid loading the
      # entire file into memory.
     file = pipe(
@@ -334,7 +338,7 @@ data <-
     delim = ";",
     col_names = col_names,
     col_types = schema,
-    col_select = dplyr::all_of(col_selection),
+    col_select = all_of(col_selection),
     id = NULL,
     skip = 0,
     n_max = Inf,
@@ -345,19 +349,19 @@ data <-
     trim_ws = TRUE,
     escape_double = TRUE,
     escape_backslash = FALSE,
-    locale = vroom::locale(
+    locale = locale(
       date_names = "pt",
       date_format = "%d/%m/%Y",
       time_format = "%H:%M:%S",
       decimal_mark = ",",
       grouping_mark = ".",
       tz = "America/Sao_Paulo",
-      encoding = readr::guess_encoding(file)$encoding[1]
+      encoding = guess_encoding(file)$encoding[1]
     ),
     guess_max = 100,
     altrep = TRUE,
     num_threads = vroom:::vroom_threads(),
-    progress = vroom::vroom_progress(),
+    progress = vroom_progress(),
     show_col_types = NULL,
     .name_repair = "unique"
   )
@@ -367,7 +371,7 @@ data <-
 #| warning: false
 #| code-fold: false
 
-data |> dplyr::glimpse()
+data |> glimpse()
 ```
 
 ## Rename the Data
@@ -377,8 +381,8 @@ data |> dplyr::glimpse()
 
 data <-
   data |>
-  janitor::clean_names() |>
-  dplyr::rename(
+  clean_names() |>
+  rename(
     id = co_pessoa_sisvan,
     municipality_code = co_municipio_ibge,
     date = dt_acompanhamento,
@@ -392,7 +396,7 @@ data <-
 ```{r}
 #| code-fold: false
 
-data |> dplyr::glimpse()
+data |> glimpse()
 ```
 
 ## Tidy the Data
@@ -402,10 +406,10 @@ data |> dplyr::glimpse()
 
 data <-
   data |>
-  dplyr::mutate(
+  mutate(
     sex =
       sex |>
-      dplyr::case_match(
+      case_match(
         "F" ~ "female",
         "M" ~ "male"
       ) |>
@@ -414,13 +418,13 @@ data <-
         ordered = FALSE
       )
   ) |>
-  dplyr::relocate(id, date)
+  relocate(id, date)
 ```
 
 ```{r}
 #| code-fold: false
 
-data |> dplyr::glimpse()
+data |> glimpse()
 ```
 
 ## Transform the Data
@@ -434,8 +438,8 @@ The [`orbis`](https://danielvartan.github.io/orbis/) R package retrieves state a
 ```{r}
 #| code-fold: false
 
-brazil_municipalities <- orbis::get_brazil_municipality(
-  year = plotr:::get_closest_geobr_year(year, type = "municipality")
+brazil_municipalities <- get_brazil_municipality(
+  year = get_closest_geobr_year(year, type = "municipality")
 )
 ```
 
@@ -443,7 +447,7 @@ brazil_municipalities <- orbis::get_brazil_municipality(
 #| eval: false
 #| include: false
 
-brazil_municipalities |> dplyr::glimpse()
+brazil_municipalities |> glimpse()
 ```
 
 ```{r}
@@ -451,17 +455,17 @@ brazil_municipalities |> dplyr::glimpse()
 
 data <-
   data |>
-  dplyr::left_join(
+  left_join(
     brazil_municipalities |>
-      dplyr::mutate(
+      mutate(
         municipality_code =
           municipality_code |>
-          stringr::str_sub(end = -2) |>
+          str_sub(end = -2) |>
           as.integer()
       ),
     by = "municipality_code"
   ) |>
-  dplyr::relocate(
+  relocate(
     id,
     date,
     region_code,
@@ -477,7 +481,7 @@ data <-
 ```{r}
 #| code-fold: false
 
-data |> dplyr::glimpse()
+data |> glimpse()
 ```
 
 ## Validate the Data
@@ -489,8 +493,8 @@ data |> dplyr::glimpse()
 
 data <-
   data |>
-  dplyr::arrange(dplyr::desc(date)) |>
-  dplyr::distinct(
+  arrange(desc(date)) |>
+  distinct(
     id,
     age,
     date,
@@ -503,7 +507,7 @@ data <-
 ```{r}
 #| code-fold: false
 
-data |> dplyr::glimpse()
+data |> glimpse()
 ```
 
 ```{r}
@@ -513,7 +517,7 @@ data |> dplyr::glimpse()
 
 # data <-
 #   data |>
-#   dplyr::mutate(
+#   mutate(
 #     waz = waz()
 #   )
 ```
@@ -525,7 +529,7 @@ data |> dplyr::glimpse()
 
 data <-
   data |>
-  dplyr::arrange(
+  arrange(
     region_code,
     state_code,
     municipality_code,
@@ -540,7 +544,7 @@ data <-
 ```{r}
 #| code-fold: false
 
-data |> dplyr::glimpse()
+data |> glimpse()
 ```
 
 ## Data Dictionary
@@ -548,7 +552,7 @@ data |> dplyr::glimpse()
 ```{r}
 metadata <-
   data |>
-  labelled::`var_label<-`(
+  `var_label<-`(
     list(
       id = "Unique identifier of the individual",
       date = "Date of the individual's nutritional assessment",
@@ -565,8 +569,8 @@ metadata <-
       height = "Height of the individual in centimeters"
     )
   ) |>
-  labelled::generate_dictionary(details = "full") |>
-  labelled::convert_list_columns_to_character()
+  generate_dictionary(details = "full") |>
+  convert_list_columns_to_character()
 ```
 
 ```{r}
@@ -594,15 +598,15 @@ valid_file_pattern <- paste0(
 
 ```{r}
 data |>
-  readr::write_csv(
-    here::here("data", paste0(valid_file_pattern, ".csv"))
+  write_csv(
+    here("data", paste0(valid_file_pattern, ".csv"))
   )
 ```
 
 ```{r}
 data |>
-  readr::write_rds(
-    here::here("data", paste0(valid_file_pattern, ".rds"))
+  write_rds(
+    here("data", paste0(valid_file_pattern, ".rds"))
   )
 ```
 
@@ -621,19 +625,19 @@ metadata_file_pattern <- paste0(
 
 ```{r}
 metadata |>
-  readr::write_csv(
-    here::here("data", paste0(metadata_file_pattern, ".csv"))
+  write_csv(
+    here("data", paste0(metadata_file_pattern, ".csv"))
   )
 ```
 
 ```{r}
 metadata |>
-  readr::write_rds(
-    here::here("data", paste0(metadata_file_pattern, ".rds"))
+  write_rds(
+    here("data", paste0(metadata_file_pattern, ".rds"))
   )
 ```
 
-<!-- ## Uploading the Data to OSF (Optional) -->
+<!-- ## Upload the Data to OSF (Optional) -->
 
 <!-- Only repository administrators can upload data to OSF. -->
 <!-- To enable uploads, set your `OSF_PAT` environment variable with a valid OSF personal access token. -->
@@ -642,7 +646,7 @@ metadata |>
 #| eval: false
 #| include: false
 
-Sys.getenv("OSF_PAT") |> osfr::osf_auth()
+Sys.getenv("OSF_PAT") |> osf_auth()
 ```
 
 ```{r}
@@ -654,13 +658,13 @@ metadata_file_pattern <- paste0("beta-", metadata_file_pattern)
 
 osf_id <- paste0("https://osf.io/", "q7m9d")
 
-osfr::osf_upload(
-  x = osfr::osf_retrieve_node(osf_id),
+osf_upload(
+  x = osf_retrieve_node(osf_id),
   path = c(
-    here::here("data", paste0(valid_file_pattern, ".csv")),
-    here::here("data", paste0(valid_file_pattern, ".rds")),
-    here::here("data", paste0(metadata_file_pattern, ".csv")),
-    here::here("data", paste0(metadata_file_pattern, ".rds"))
+    here("data", paste0(valid_file_pattern, ".csv")),
+    here("data", paste0(valid_file_pattern, ".rds")),
+    here("data", paste0(metadata_file_pattern, ".csv")),
+    here("data", paste0(metadata_file_pattern, ".rds"))
   ),
   conflicts = "overwrite"
 )
@@ -681,8 +685,8 @@ valid_file_pattern <- paste0(
   age_limits[2]
 )
 
-data <- readr::read_rds(
-  here::here("data", paste0(valid_file_pattern, ".rds"))
+data <- read_rds(
+  here("data", paste0(valid_file_pattern, ".rds"))
 )
 ```
 
@@ -699,16 +703,16 @@ As described in @silva2023a[p. 4], to calculate SISVAN's total resident populati
 
 data <-
   data |>
-    dplyr::mutate(year = lubridate::year(date)) |>
-    dplyr::arrange(dplyr::desc(date)) |>
-    dplyr::distinct(id, year, .keep_all = TRUE) |>
-    dplyr::relocate(year, .after = date)
+    mutate(year = lubridate::year(date)) |>
+    arrange(desc(date)) |>
+    distinct(id, year, .keep_all = TRUE) |>
+    relocate(year, .after = date)
 ```
 
 ```{r}
 #| code-fold: false
 
-data |> dplyr::glimpse()
+data |> glimpse()
 ```
 
 #### Summarize the Data by Year
@@ -718,8 +722,8 @@ data |> dplyr::glimpse()
 
 data <-
   data |>
-    dplyr::summarize(
-      coverage = dplyr::n(),
+    summarize(
+      coverage = n(),
       mean_age = age |> mean(na.rm = TRUE),
       mean_weight = weight |> mean(na.rm = TRUE),
       mean_height = height |> mean(na.rm = TRUE),
@@ -735,7 +739,7 @@ data <-
 ```{r}
 #| code-fold: false
 
-data |> dplyr::glimpse()
+data |> glimpse()
 ```
 
 #### Add Population Estimates
@@ -755,34 +759,34 @@ datasus_file_pattern <- paste0("datasus-pop-estimates-", year)
 ```{r}
 #| code-fold: false
 
-datasus_file <- here::here("data", paste0(datasus_file_pattern, ".rds"))
+datasus_file <- here("data", paste0(datasus_file_pattern, ".rds"))
 
 if (!checkmate::test_file_exists(datasus_file)) {
   osf_id <-
     paste0("https://osf.io/", "h3pyd") |>
-    osfr::osf_retrieve_node() |>
-    osfr::osf_ls_files(
+    osf_retrieve_node() |>
+    osf_ls_files(
       type = "file",
       pattern = paste0("valid-", year, ".rds")
     )
 
-  osfr::osf_download(
+  osf_download(
     x = osf_id,
     path = tempdir(),
     conflicts = "overwrite"
   ) |>
-    dplyr::pull(local_path) |>
-    fs::file_move(datasus_file)
+    pull(local_path) |>
+    file_move(datasus_file)
 }
 
-pop_estimates <- datasus_file |> readr::read_rds()
+pop_estimates <- datasus_file |> read_rds()
 ```
 
 ```{r}
 #| eval: false
 #| include: false
 
-pop_estimates |> dplyr::glimpse()
+pop_estimates |> glimpse()
 ```
 
 ```{r}
@@ -790,8 +794,8 @@ pop_estimates |> dplyr::glimpse()
 
 data <-
   pop_estimates |>
-  dplyr::filter(dplyr::between(age, age_limits[1], age_limits[2])) |>
-  dplyr::summarize(
+  filter(between(age, age_limits[1], age_limits[2])) |>
+  summarize(
     n = n |> sum(na.rm = TRUE),
     .by = c(
       "year",
@@ -800,13 +804,13 @@ data <-
       "municipality_code"
     )
   ) |>
-  dplyr::mutate(
+  mutate(
     municipality_code =
       municipality_code |>
-      stringr::str_sub(end = -2) |>
+      str_sub(end = -2) |>
       as.integer()
   ) |>
-  dplyr::right_join(
+  right_join(
     data,
     by = c(
       "year",
@@ -815,14 +819,14 @@ data <-
       "municipality_code"
     )
   ) |>
-  dplyr::rename(population = n) |>
-  dplyr::relocate(population, .before = coverage)
+  rename(population = n) |>
+  relocate(population, .before = coverage)
 ```
 
 ```{r}
 #| code-fold: false
 
-data |> dplyr::glimpse()
+data |> glimpse()
 ```
 
 ### Validate the Data
@@ -838,8 +842,8 @@ Note: At this stage, only the most recent record for each individual is retained
 
 data <-
   data |>
-  dplyr::mutate(
-    population = dplyr::case_when(
+  mutate(
+    population = case_when(
       coverage > population ~ coverage,
       TRUE ~ population
     )
@@ -849,7 +853,7 @@ data <-
 ```{r}
 #| code-fold: false
 
-data |> dplyr::glimpse()
+data |> glimpse()
 ```
 
 ### Compute Relative Coverage
@@ -859,14 +863,14 @@ data |> dplyr::glimpse()
 
 data <-
   data |>
-  dplyr::mutate(coverage_per = (coverage / population) * 100) |>
-  dplyr::relocate(coverage_per, .after = coverage)
+  mutate(coverage_per = (coverage / population) * 100) |>
+  relocate(coverage_per, .after = coverage)
 ```
 
 ```{r}
 #| code-fold: false
 
-data |> dplyr::glimpse()
+data |> glimpse()
 ```
 
 ### Arrange the Data
@@ -876,7 +880,7 @@ data |> dplyr::glimpse()
 
 data <-
   data |>
-  dplyr::arrange(
+  arrange(
     year,
     region_code,
     state_code,
@@ -887,7 +891,7 @@ data <-
 ```{r}
 #| code-fold: false
 
-data |> dplyr::glimpse()
+data |> glimpse()
 ```
 
 ### Check Relative Coverage by Region
@@ -900,22 +904,22 @@ The coverage observed here is slightly lower than that reported in @silva2023a[T
 #| output: asis
 
 data |>
-  dplyr::mutate(region = orbis::get_brazil_region(region_code)) |>
-  dplyr::summarize(
+  mutate(region = orbis::get_brazil_region(region_code)) |>
+  summarize(
     population = population |> sum(na.rm = TRUE),
     coverage = coverage |> sum(na.rm = TRUE),
     .by = "region"
   ) |>
-  dplyr::slice(c(1, 2, 5, 3, 4)) |>
-  dplyr::mutate(coverage_per = (coverage / population) * 100) |>
-  dplyr::rename(
+  slice(c(1, 2, 5, 3, 4)) |>
+  mutate(coverage_per = (coverage / population) * 100) |>
+  rename(
     Region = region,
     Population = population,
     `SISVAN coverage` = coverage,
     `SISVAN coverage (%)` = coverage_per
   ) |>
-  pal::pipe_table() |>
-  pal::cat_lines()
+  pipe_table() |>
+  cat_lines()
 ```
 
 ### Checking Relative Coverage by State
@@ -924,22 +928,22 @@ data |>
 #| output: asis
 
 data |>
-  dplyr::mutate(state = orbis::get_brazil_state(state_code)) |>
-  dplyr::summarize(
+  mutate(state = orbis::get_brazil_state(state_code)) |>
+  summarize(
     population = population |> sum(na.rm = TRUE),
     coverage = coverage |> sum(na.rm = TRUE),
     .by = "state"
   ) |>
-  dplyr::arrange(state) |>
-  dplyr::mutate(coverage_per = (coverage / population) * 100) |>
-  dplyr::rename(
+  arrange(state) |>
+  mutate(coverage_per = (coverage / population) * 100) |>
+  rename(
     State = state,
     Population = population,
     `SISVAN coverage` = coverage,
     `SISVAN coverage (%)` = coverage_per
   ) |>
-  pal::pipe_table() |>
-  pal::cat_lines()
+  pipe_table() |>
+  cat_lines()
 ```
 
 ## Visualize the Relative Coverage
@@ -949,15 +953,15 @@ brand_div_palette <- function(x) {
   brandr:::make_color_ramp(
     n_prop = x,
     colors = c(
-      brandr::get_brand_color("dark-red"),
-      # brandr::get_brand_color("white"),
-      brandr::get_brand_color_mix(
+      get_brand_color("dark-red"),
+      # get_brand_color("white"),
+      get_brand_color_mix(
         position = 950,
         color_1 = "dark-red",
         color_2 = "dark-red-triadic-blue",
         alpha = 0.5
       ),
-      brandr::get_brand_color("dark-red-triadic-blue")
+      get_brand_color("dark-red-triadic-blue")
     )
   )
 }
@@ -965,14 +969,14 @@ brand_div_palette <- function(x) {
 
 ```{r}
 data |>
-  tidyr::drop_na(coverage_per) |>
+  drop_na(coverage_per) |>
   plotr:::plot_hist(
     col = "coverage_per",
-    density_line_color = brandr::get_brand_color("red"),
+    density_line_color = get_brand_color("red"),
     x_label = "Coverage (%)",
     print = FALSE
   ) +
-  ggplot2::labs(
+  labs(
     title = "SISVAN Coverage by Municipality (%)",
     subtitle = paste0("Year: ", year),
     caption = "Source: SISVAN"
@@ -984,18 +988,18 @@ data |>
 #| fig-width: 8
 
 data |>
-  tidyr::drop_na(coverage_per, municipality_code) |>
+  drop_na(coverage_per, municipality_code) |>
   plotr:::plot_brazil_municipality(
     col_fill = "coverage_per",
     col_code = "municipality_code",
-    year = plotr:::get_closest_geobr_year(year, type = "municipality"),
+    year = get_closest_geobr_year(year, type = "municipality"),
     comparable_areas = FALSE,
     breaks = seq(0, 100, 25),
     limits = c(0, 100),
     palette = brand_div_palette,
     print = FALSE
   ) +
-  ggplot2::labs(
+  labs(
     title = "SISVAN Coverage by Municipality (%)",
     subtitle = paste0("Year: ", year),
     caption = "Source: SISVAN"
@@ -1006,7 +1010,13 @@ data |>
 #| eval: false
 #| include: false
 
-grDevices::dev.off()
+dev.off()
+```
+
+```{r}
+# echo: false
+
+gc()
 ```
 
 ## How to Cite
