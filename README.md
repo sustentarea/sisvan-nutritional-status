@@ -3,7 +3,7 @@
 <!-- badges: start -->
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://img.shields.io/badge/Repo%20Status-Active-12DA12.svg)](https://www.repostatus.org/#inactive)
 [![OSF DOI](https://img.shields.io/badge/OSF-10.17605/OSF.IO/8J94M-1284C5.svg)](https://doi.org/10.17605/OSF.IO/8J94M)
-[![License: MIT](https://img.shields.io/badge/License-MIT-10D810.svg)](https://choosealicense.com/licenses/mit/)
+[![License: GPLv3](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 <!-- badges: end -->
 
@@ -43,12 +43,12 @@ We use the [`vroom`](https://vroom.r-lib.org/) R package together with the [AWK]
 
 To cite this work, please use the following format:
 
-Vartanian, D., Schettino, J. P. J., & Carvalho, A. M. (2025). *A reproducible pipeline for processing SISVAN microdata on nutritional status monitoring in Brazil (2008-2023)* \[Report\]. Sustentarea Research and Extension Group at the University of São Paulo. <https://sustentarea.github.io/sisvan-nutritional-status>
+Vartanian, D., Schettino, J. P. J., & Carvalho, A. M. (2025). *A reproducible pipeline for processing SISVAN microdata on nutritional status monitoring in Brazil (2008-2023)* \[Computer software\]. Sustentarea Research and Extension Group at the University of São Paulo. <https://sustentarea.github.io/sisvan-nutritional-status>
 
 A BibTeX entry for LaTeX users is
 
 ```
-@techreport{vartanian2025,
+@misc{vartanian2025,
   title = {A reproducible pipeline for processing SISVAN microdata on nutritional status monitoring in Brazil (2008-2023)},
   author = {{Daniel Vartanian} and {João Pedro Junqueira Schettino} and {Aline Martins de Carvalho}},
   year = {2025},
@@ -61,11 +61,26 @@ A BibTeX entry for LaTeX users is
 
 ## License
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-10D810.svg)](https://choosealicense.com/licenses/mit/)
+[![License: GPLv3](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
-The code in this repository is licensed under the [MIT License](https://opensource.org/license/mit/), while the documents are available under the [Creative Commons Attribution 4.0 International
-License](https://creativecommons.org/licenses/by/4.0/).
+The code in this repository is licensed under the [GNU General Public License Version 3](https://www.gnu.org/licenses/gpl-3.0), while the report is available under the [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).
+
+``` text
+Copyright (C) 2025 Daniel Vartanian
+
+The code in this repository is free software: you can redistribute it and/or
+modify it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <https://www.gnu.org/licenses/>.
+```
 
 ## Acknowledgments
 

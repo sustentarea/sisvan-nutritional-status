@@ -2,13 +2,15 @@
 #| label: setup
 #| include: false
 
-source(here::here("R", "_setup.R"))
+library(here)
+
+source(here("R", "_setup.R"))
 ```
 
 <!-- badges: start -->
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://img.shields.io/badge/Repo%20Status-Active-12DA12.svg)](https://www.repostatus.org/#inactive)
 [![OSF DOI](https://img.shields.io/badge/OSF-10.17605/OSF.IO/8J94M-1284C5.svg)](https://doi.org/10.17605/OSF.IO/8J94M)
-[![License: MIT](https://img.shields.io/badge/License-MIT-10D810.svg)](https://choosealicense.com/licenses/mit/)
+[![License: GPLv3](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 <!-- badges: end -->
 
@@ -84,10 +86,9 @@ The Tidyverse [code style guide](https://style.tidyverse.org/) and [design princ
 
 The pipeline is fully reproducible and can be run again at any time. See the [README](https://github.com/danielvartan/datasus-pop-estimates/blob/main/README.md) file in the code repository to learn how to run it.
 
-## Setting the Environment
+## Set the Environment
 
 ```{r}
-#| eval: false
 #| code-fold: false
 
 library(brandr)
@@ -117,15 +118,7 @@ library(vroom)
 source(here::here("R", "waz.R"))
 ```
 
-```{r}
-#| include: false
-
-library(dplyr)
-library(ggplot2)
-library(vroom)
-```
-
-## Setting the Initial Variables
+## Set the Initial Variables
 
 ```{r}
 #| code-fold: false
@@ -157,7 +150,7 @@ col_selection <- c(
 )
 ```
 
-## Downloading the Data
+## Download the Data
 
 ::: {.callout-note}
 SISVAN microdata files are very large. For practical reasons, some code chunks have `eval: false` set to prevent downloading the data each time the report is rendered. When running the pipeline in a loop or for full automation, remove these lines to enable automatic downloading.
@@ -190,7 +183,7 @@ paste0(
   httr2::req_perform(file)
 ```
 
-## Unzipping the Data
+## Unzip the Data
 
 ```{r}
 #| eval: false
@@ -214,7 +207,7 @@ file <-
 fs::file_delete(here::here("data", paste0(raw_file_pattern, ".zip")))
 ```
 
-## Checking Data Dimensions
+## Check Data Dimensions
 
 ```{r}
 #| echo: false
@@ -230,7 +223,7 @@ file <- here::here("data", paste0(raw_file_pattern, ".csv"))
 file |> groomr::peek_csv_file(delim = ";", skip = 0, has_header = TRUE)
 ```
 
-## Reading and Filtering the Data
+## Read and Filter the Data
 
 ::: {.callout-note}
 We use the [`vroom`](https://vroom.r-lib.org/) R package together with the [AWK](https://en.wikipedia.org/wiki/AWK) programming language to efficiently handle large datasets and mitigate memory issues. This approach allows the pipeline to run locally on most machines, though we recommend a minimum of 12 GB of RAM for optimal performance. Alternatively, the pipeline can also be executed on cloud platforms such as [Google Colab](https://colab.research.google.com/) or [RStudio Cloud](https://rstudio.cloud/).
@@ -377,7 +370,7 @@ data <-
 data |> dplyr::glimpse()
 ```
 
-## Renaming the Data
+## Rename the Data
 
 ```{r}
 #| code-fold: false
@@ -402,7 +395,7 @@ data <-
 data |> dplyr::glimpse()
 ```
 
-## Tidying the Data
+## Tidy the Data
 
 ```{r}
 #| code-fold: false
@@ -430,9 +423,9 @@ data <-
 data |> dplyr::glimpse()
 ```
 
-## Transforming the Data
+## Transform the Data
 
-### Adding State and Region Data
+### Add State and Region Data
 
 ::: {.callout-note}
 The [`orbis`](https://danielvartan.github.io/orbis/) R package retrieves state and region information using the [`geobr`](https://ipeagit.github.io/geobr) package, developed by the Brazilian Institute for Applied Economic Research ([IPEA](https://www.ipea.gov.br/)). The `geobr` package, in turn, is based on official data from the Brazilian Institute of Geography and Statistics ([IBGE](https://www.ibge.gov.br/)).
@@ -487,9 +480,9 @@ data <-
 data |> dplyr::glimpse()
 ```
 
-## Validating the Data
+## Validate the Data
 
-### Removing Duplicates
+### Remove Duplicates
 
 ```{r}
 #| code-fold: false
@@ -525,7 +518,7 @@ data |> dplyr::glimpse()
 #   )
 ```
 
-## Arranging the Data
+## Arrange the Data
 
 ```{r}
 #| code-fold: false
@@ -584,7 +577,7 @@ metadata
 data
 ```
 
-## Saving the Valid Data
+## Save the Valid Data
 
 ### Data
 
@@ -673,7 +666,7 @@ osfr::osf_upload(
 )
 ```
 
-## Checking the Relative Coverage
+## Check the Relative Coverage
 
 ```{r}
 #| eval: false
@@ -693,9 +686,9 @@ data <- readr::read_rds(
 )
 ```
 
-### Transforming the Data
+### Transform the Data
 
-#### Removing Duplicates by Year
+#### Remove Duplicates by Year
 
 ::: {.callout-note}
 As described in @silva2023a[p. 4], to calculate SISVAN's total resident population coverage, only the most recent record for each individual within each year is retained for analysis.
@@ -718,7 +711,7 @@ data <-
 data |> dplyr::glimpse()
 ```
 
-#### Summarizing the Data by Year
+#### Summarize the Data by Year
 
 ```{r}
 #| code-fold: false
@@ -745,7 +738,7 @@ data <-
 data |> dplyr::glimpse()
 ```
 
-#### Adding Population Estimates
+#### Add Population Estimates
 
 ::: {.callout-note}
 As described in the Methods section, the population estimates were obtained from the [DATASUS](https://datasus.saude.gov.br/) platform, which provides annual data by municipality, age, and sex for Brazil from 2000 to 2024 [@datasusb].
@@ -832,7 +825,7 @@ data <-
 data |> dplyr::glimpse()
 ```
 
-### Validating the Data
+### Validate the Data
 
 ::: {.callout-note}
 The population value used here is an estimate. If the SISVAN coverage for a municipality exceeds the estimated population, the population value is adjusted to match the coverage.
@@ -859,7 +852,7 @@ data <-
 data |> dplyr::glimpse()
 ```
 
-### Calculating Relative Coverage
+### Compute Relative Coverage
 
 ```{r}
 #| code-fold: false
@@ -876,7 +869,7 @@ data <-
 data |> dplyr::glimpse()
 ```
 
-### Arranging the Data
+### Arrange the Data
 
 ```{r}
 #| code-fold: false
@@ -897,7 +890,7 @@ data <-
 data |> dplyr::glimpse()
 ```
 
-### Checking Relative Coverage by Region
+### Check Relative Coverage by Region
 
 ::: {.callout-note}
 The coverage observed here is slightly lower than that reported in @silva2023a[Table 2]. This difference may be explained by the use of different data sources (Fundação Oswaldo Cruz (Fiocruz) vs. OpenDataSUS).
@@ -949,7 +942,7 @@ data |>
   pal::cat_lines()
 ```
 
-## Visualizing the Relative Coverage
+## Visualize the Relative Coverage
 
 ```{r}
 brand_div_palette <- function(x) {
@@ -1020,12 +1013,12 @@ grDevices::dev.off()
 
 To cite this work, please use the following format:
 
-Vartanian, D., Schettino, J. P. J., & Carvalho, A. M. (2025). *A reproducible pipeline for processing SISVAN microdata on nutritional status monitoring in Brazil (2008-2023)* \[Report\]. Sustentarea Research and Extension Group at the University of São Paulo. <https://sustentarea.github.io/sisvan-nutritional-status>
+Vartanian, D., Schettino, J. P. J., & Carvalho, A. M. (2025). *A reproducible pipeline for processing SISVAN microdata on nutritional status monitoring in Brazil (2008-2023)* \[Computer software\]. Sustentarea Research and Extension Group at the University of São Paulo. <https://sustentarea.github.io/sisvan-nutritional-status>
 
 A BibTeX entry for LaTeX users is
 
 ```
-@techreport{vartanian2025,
+@misc{vartanian2025,
   title = {A reproducible pipeline for processing SISVAN microdata on nutritional status monitoring in Brazil (2008-2023)},
   author = {{Daniel Vartanian} and {João Pedro Junqueira Schettino} and {Aline Martins de Carvalho}},
   year = {2025},
@@ -1039,12 +1032,27 @@ A BibTeX entry for LaTeX users is
 ## License
 
 ::: {style="text-align: left;"}
-[![License: MIT](https://img.shields.io/badge/License-MIT-10D810.svg)](https://choosealicense.com/licenses/mit/)
+[![License: GPLv3](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 :::
 
-The code in this report is licensed under the [MIT License](https://opensource.org/license/mit/), while the documents are available under the [Creative Commons Attribution 4.0 International
-License](https://creativecommons.org/licenses/by/4.0/).
+The code in this report is licensed under the [GNU General Public License Version 3](https://www.gnu.org/licenses/gpl-3.0), while the report is available under the [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).
+
+``` text
+Copyright (C) 2025 Daniel Vartanian
+
+The code in this report is free software: you can redistribute it and/or
+modify it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <https://www.gnu.org/licenses/>.
+```
 
 ## Acknowledgments
 
