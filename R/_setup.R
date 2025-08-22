@@ -1,6 +1,7 @@
 # Load Packages -----
 
 library(brandr)
+library(downlit)
 library(ggplot2)
 library(here)
 library(httpgd) # github.com/nx10/httpgd
@@ -10,6 +11,7 @@ library(quartor) # github.com/danielvartan/quartor
 library(ragg)
 library(showtext)
 library(sysfonts)
+library(xml2)
 
 # Set General Options -----
 

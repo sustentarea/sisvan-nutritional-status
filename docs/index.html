@@ -5,7 +5,7 @@
 <meta name="generator" content="quarto-1.7.32">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Daniel Vartanian, João Pedro J. Schettino, &amp; Aline M. de Carvalho">
-<meta name="dcterms.date" content="2025-08-12">
+<meta name="dcterms.date" content="2025-08-21">
 <title>A Reproducible Pipeline for Processing SISVAN Microdata on Nutritional Status Monitoring in Brazil (2008-2023)</title>
 <style>
 code{white-space: pre-wrap;}
@@ -89,7 +89,7 @@ div.csl-indent {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-bd1cbf55dbcebeb55868b6defe49ed7b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-a98f48ef6ff932e7289ead54ae14351b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-25939775ffc8143c575f6bbd12596c1f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script src="site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -117,10 +117,10 @@ div.csl-indent {
 <meta name="citation_title" content="A Reproducible Pipeline for Processing SISVAN Microdata on Nutritional Status Monitoring in Brazil (2008-2023)
 ">
 <meta name="citation_author" content="Daniel Vartanian, João Pedro J. Schettino, &amp;amp; Aline M. de Carvalho">
-<meta name="citation_publication_date" content="2025-08-12">
-<meta name="citation_cover_date" content="2025-08-12">
+<meta name="citation_publication_date" content="2025-08-21">
+<meta name="citation_cover_date" content="2025-08-21">
 <meta name="citation_year" content="2025">
-<meta name="citation_online_date" content="2025-08-12">
+<meta name="citation_online_date" content="2025-08-21">
 <meta name="citation_fulltext_html_url" content="https://sustentarea.github.io/sisvan-nutritional-status/">
 <meta name="citation_language" content="en">
 <meta name="citation_reference" content="citation_title=Quarto;,citation_abstract=Quarto is an open-source scientific and technical publishing system built on Pandoc.;,citation_author=J. J. Allaire;,citation_author=Charles Teague;,citation_author=Yihui Xie;,citation_author=Christophe Dervieux;,citation_fulltext_html_url=https://quarto.org;,citation_doi=10.5281/ZENODO.5960048;,citation_publisher=Zenodo;">
@@ -258,7 +258,7 @@ div.csl-indent {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">August 12, 2025</p>
+      <p class="date">August 21, 2025</p>
     </div>
   </div>
   
@@ -323,7 +323,7 @@ Figure&nbsp;1: Data science workflow created by Wickham, Çetinkaya-Runde, and G
 </section><section id="code-style" class="level3"><h3 class="anchored" data-anchor-id="code-style">Code Style</h3>
 <p>The Tidyverse <a href="https://style.tidyverse.org/">code style guide</a> and <a href="https://design.tidyverse.org/">design principles</a> were followed to ensure consistency and enhance readability.</p>
 </section><section id="reproducibility" class="level3"><h3 class="anchored" data-anchor-id="reproducibility">Reproducibility</h3>
-<p>The pipeline is fully reproducible and can be run again at any time. See the <a href="https://github.com/danielvartan/datasus-pop-estimates/blob/main/README.md">README</a> file in the code repository to learn how to run it.</p>
+<p>The pipeline is fully reproducible and can be run again at any time. See the <a href="https://github.com/sustentarea/sisvan-nutritional-status/blob/main/README.md">README</a> file in the code repository to learn how to run it.</p>
 </section></section><section id="set-the-environment" class="level2"><h2 class="anchored" data-anchor-id="set-the-environment">Set the Environment</h2>
 <div class="cell">
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://danielvartan.github.io/brandr/">brandr</a></span><span class="op">)</span></span>
@@ -1128,7 +1128,7 @@ Figure&nbsp;1: Data science workflow created by Wickham, Çetinkaya-Runde, and G
 </div>
 </div>
 <details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb50"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">data</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>region <span class="op">=</span> <span class="fu">orbis</span><span class="fu">::</span><span class="fu"><a href="https://danielvartan.github.io/orbis/reference/get_brazil_region.html">get_brazil_region</a></span><span class="op">(</span><span class="va">region_code</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>region <span class="op">=</span> <span class="fu"><a href="https://danielvartan.github.io/orbis/reference/get_brazil_region.html">get_brazil_region</a></span><span class="op">(</span><span class="va">region_code</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarize</a></span><span class="op">(</span></span>
 <span>    population <span class="op">=</span> <span class="va">population</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span>na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>    coverage <span class="op">=</span> <span class="va">coverage</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span>na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
@@ -1191,7 +1191,7 @@ Figure&nbsp;1: Data science workflow created by Wickham, Çetinkaya-Runde, and G
 </tbody>
 </table></section><section id="checking-relative-coverage-by-state" class="level3"><h3 class="anchored" data-anchor-id="checking-relative-coverage-by-state">Checking Relative Coverage by State</h3>
 <details class="code-fold"><summary>Code</summary><div class="sourceCode" id="cb51"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">data</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>state <span class="op">=</span> <span class="fu">orbis</span><span class="fu">::</span><span class="fu"><a href="https://danielvartan.github.io/orbis/reference/get_brazil_state.html">get_brazil_state</a></span><span class="op">(</span><span class="va">state_code</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>state <span class="op">=</span> <span class="fu"><a href="https://danielvartan.github.io/orbis/reference/get_brazil_state.html">get_brazil_state</a></span><span class="op">(</span><span class="va">state_code</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarize</a></span><span class="op">(</span></span>
 <span>    population <span class="op">=</span> <span class="va">population</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span>na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>    coverage <span class="op">=</span> <span class="va">coverage</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span>na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
@@ -1456,8 +1456,8 @@ Figure&nbsp;1: Data science workflow created by Wickham, Çetinkaya-Runde, and G
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/gc.html">gc</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;            used  (Mb) gc trigger   (Mb)  max used   (Mb)</span></span>
-<span><span class="co">#&gt; Ncells  2407800 128.6   19327511 1032.3  30199235 1612.9</span></span>
-<span><span class="co">#&gt; Vcells 17590415 134.3  251093711 1915.7 313867032 2394.7</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="co">#&gt; Ncells  2629277 140.5   16058533  857.7  31364321 1675.1</span></span>
+<span><span class="co">#&gt; Vcells 18090146 138.1  192556320 1469.1 300869231 2295.5</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section><section id="how-to-cite" class="level2"><h2 class="anchored" data-anchor-id="how-to-cite">How to Cite</h2>

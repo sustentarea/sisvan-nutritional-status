@@ -84,7 +84,7 @@ The Tidyverse [code style guide](https://style.tidyverse.org/) and [design princ
 
 ### Reproducibility
 
-The pipeline is fully reproducible and can be run again at any time. See the [README](https://github.com/danielvartan/datasus-pop-estimates/blob/main/README.md) file in the code repository to learn how to run it.
+The pipeline is fully reproducible and can be run again at any time. See the [README](https://github.com/sustentarea/sisvan-nutritional-status/blob/main/README.md) file in the code repository to learn how to run it.
 
 ## Set the Environment
 
@@ -904,7 +904,7 @@ The coverage observed here is slightly lower than that reported in @silva2023a[T
 #| output: asis
 
 data |>
-  mutate(region = orbis::get_brazil_region(region_code)) |>
+  mutate(region = get_brazil_region(region_code)) |>
   summarize(
     population = population |> sum(na.rm = TRUE),
     coverage = coverage |> sum(na.rm = TRUE),
@@ -928,7 +928,7 @@ data |>
 #| output: asis
 
 data |>
-  mutate(state = orbis::get_brazil_state(state_code)) |>
+  mutate(state = get_brazil_state(state_code)) |>
   summarize(
     population = population |> sum(na.rm = TRUE),
     coverage = coverage |> sum(na.rm = TRUE),
