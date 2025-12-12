@@ -93,32 +93,6 @@ Different validation techniques were used to ensure data quality and reliability
 
 The recommended approach is to calculate nutritional status categories based on z-scores, as described in the WHO child growth standards [@who2006, Section C]. However, because the SISVAN data provide age only in years (rather than days or months, as required for accurate classification), this would introduce an unacceptably high classification error. Therefore, we decided to use the nutritional status categories already present in the microdata, but exclude values previously identified as biologically implausible values (BIVs).
 
-<!-- Nutritional status categories for weight-for-age, weight-for-height, stature-for-age, and BMI-for-age were assigned using z-scores calculated with the [`anthro`](https://cran.r-project.org/web/packages/anthro/index.html) R package [@dirkschumacher], following WHO child growth standards [@who2006]. Classifications were based on weight, height, age, and sex as described below:
-
-| Indicator         | Category                    | z-Score Range      |
-|-------------------|-----------------------------|--------------------|
-| Weight-for-Age    | Severely underweight        | $z < -3$           |
-|                   | Underweight                 | $-3 \leq z < -2$   |
-|                   | Normal                      | $-2 \leq z \leq 1$ |
-|                   | High                        | $z > 1$            |
-| Weight-for-Height | Severely wasted             | $z < -3$           |
-|                   | Wasted                      | $-3 \leq z < -2$   |
-|                   | Normal                      | $-2 \leq z \leq 1$ |
-|                   | Possible risk of overweight | $1 < z \leq 2$     |
-|                   | Overweight                  | $2 < z \leq 3$     |
-|                   | Obese                       | $z > 3$            |
-| Stature-for-Age   | Severely stunted            | $z < -3$           |
-|                   | Stunted                     | $-3 \leq z < -2$   |
-|                   | Normal                      | $z \geq -2$        |
-| BMI-for-Age       | Severely wasted             | $z < -3$           |
-|                   | Wasted                      | $-3 \leq z < -2$   |
-|                   | Normal                      | $-2 \leq z \leq 1$ |
-|                   | Possible risk of overweight | $1 < z \leq 2$     |
-|                   | Overweight                  | $2 < z \leq 3$     |
-|                   | Obese                       | $z > 3$            |
-
-These categorizations align with the standards set by the World Health Organization (WHO) for assessing child growth and nutritional status [@who2008,  Section C]. -->
-
 ### Code Style
 
 The Tidyverse [Tidy Tools Manifesto](https://tidyverse.tidyverse.org/articles/manifesto.html) [@wickham2023c], [code style guide](https://style.tidyverse.org/) [@wickhamb] and [design principles](https://design.tidyverse.org/) [@wickhamc] were followed to ensure consistency and enhance readability.
@@ -714,103 +688,6 @@ data <-
 
 ```{r}
 data |> glimpse()
-```
-
-<!-- ### Categorize Nutritional Status -->
-
-<!-- ::: {.callout-note}
-See the [Data Categorization](#data-categorization) section for more information.
-::: -->
-
-```{r}
-#| eval: false
-#| include: false
-
-# The correct approach would be to calculate nutritional status
-# categories using age in days or months. However, since the SISVAN data only
-# provide age in years, the resulting classification error is unacceptably high.
-
-data <-
-  data |>
-  mutate(
-    z_scores = anthro_zscores(
-      sex = as.numeric(sex),
-      age = age,
-      is_age_in_month = TRUE,
-      weight = weight,
-      lenhei = height,
-      measure = "h"
-    ),
-    weight_for_age = case_when(
-      z_scores$zwei < -3 ~ "Severely underweight",
-      (z_scores$zwei >= -3) & (z_scores$zwei < -2) ~ "Underweight",
-      (z_scores$zwei >= -2) & (z_scores$zwei <= 1) ~ "Normal",
-      z_scores$zwei > 1 ~ "High"
-    ) |>
-      factor(
-        levels = c(
-          "Severely underweight",
-          "Underweight",
-          "Normal",
-          "High"
-        ),
-        ordered = TRUE
-      )
-    ),
-    weight_for_height = case_when(
-      z_scores$zwfl < -3 ~ "Severely wasted",
-      (z_scores$zwfl >= -3) & (z_scores$zwfl < -2) ~ "Wasted",
-      (z_scores$zwfl >= -2) & (z_scores$zwfl <= 1) ~ "Normal",
-      (z_scores$zwfl > 1) & (z_scores$zwfl <= 2) ~
-        "Possible risk of overweight",
-      (z_scores$zwfl > 2) & (z_scores$zwfl <= 3) ~ "Overweight",
-      z_scores$zwfl > 3 ~ "Obese"
-    ) |>
-      factor(
-        levels = c(
-          "Severely wasted",
-          "Wasted",
-          "Normal",
-          "Possible risk of overweight",
-          "Overweight",
-          "Obese"
-        ),
-        ordered = TRUE
-      ),
-    height_for_age = case_when(
-      z_scores$zlen < -3 ~ "Severely stunted",
-      (z_scores$zlen >= -3) & (z_scores$zlen < -2) ~ "Stunted",
-      z_scores$zlen >= -2 ~ "Normal"
-    ) |>
-      factor(
-        levels = c(
-          "Severely stunted",
-          "Stunted",
-          "Normal"
-        ),
-        ordered = TRUE
-      ),
-    bmi_for_age = case_when(
-      z_scores$zbmi < -3 ~ "Severely wasted",
-      (z_scores$zbmi >= -3) & (z_scores$zbmi < -2) ~ "Wasted",
-      (z_scores$zbmi >= -2) & (z_scores$zbmi <= 1) ~ "Normal",
-      (z_scores$zbmi > 1) & (z_scores$zbmi <= 2) ~
-        "Possible risk of overweight",
-      (z_scores$zbmi > 2) & (z_scores$zbmi <= 3) ~ "Overweight",
-      z_scores$zbmi > 3 ~ "Obese"
-    ) |>
-      factor(
-        levels = c(
-          "Severely wasted",
-          "Wasted",
-          "Normal",
-          "Possible risk of overweight",
-          "Overweight",
-          "Obese"
-        ),
-        ordered = TRUE
-      )
-  )
 ```
 
 ### Arrange Data
