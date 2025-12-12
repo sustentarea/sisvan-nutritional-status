@@ -15,6 +15,8 @@ If you are working with other age groups, you will need to adapt the code accord
 
 The report is available [here](https://sustentarea.github.io/sisvan-nutritional-status/).
 
+> If you find this project useful, please consider giving it a star! &nbsp; [![GitHub Repository Stars](https://img.shields.io/github/stars/sustentarea/sisvan-nutritional-status)](https://github.com/sustentarea/sisvan-nutritional-status/)
+
 > [!WARNING]
 > This pipeline is still under development and may not be fully functional.
 >
@@ -104,10 +106,12 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 
 ## Acknowledgments
 
+<br>
+
 <table>
   <tr>
     <td width="30%" align="center" valign="center">
-      <a href="https://www.fsp.usp.br/sustentarea/"><img src="images/sustentarea-logo.svg" width="115" alt="Sustentarea Logo"/></a>
+      <a href="https://www.fsp.usp.br/sustentarea/"><img src="images/sustentarea-logo.svg" width="100" alt="Sustentarea Logo"/></a>
     </td>
     <td width="70%" valign="center">
       This work is part of a research project by the (<a href="https://www.fsp.usp.br/sustentarea/">Sustentarea</a>) Research and Extension Group of the University of São Paulo (<a href="https://usp.br/">USP</a>) titled: <em>Global syndemic: The impact of anthropogenic climate change on the health and nutrition of children under five years old attended by Brazil\'s public health system (SUS)</em>.
