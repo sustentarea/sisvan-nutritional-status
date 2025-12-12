@@ -57,7 +57,7 @@ The data used in this report come from the following sources:
 - Brazilian Institute of Geography and Statistics ([IBGE](https://www.ibge.gov.br/)):
   - Official codes and metadata for Brazilian municipalities, incorporated via the [`geobr`](https://ipeagit.github.io/geobr/) R package [@pereirab], used to enrich the dataset with geographic information.
 - Department of Informatics of the Brazilian Unified Health System ([DATASUS](https://datasus.saude.gov.br/)):
-  - Annual population estimates by municipality, age, and sex for Brazil from 2000 to 2024 [@datasusb], used to calculate SISVAN's population coverage.
+  - Annual population estimates by municipality, age, and sex for Brazil [@datasusb], used to calculate SISVAN's population coverage.
 
 The DATASUS population estimates used in this pipeline are processed through a separate reproducible workflow, available [here](https://sustentarea.github.io/datasus-pop-estimates/) [@vartanian2025b].
 
@@ -101,7 +101,7 @@ The Tidyverse [Tidy Tools Manifesto](https://tidyverse.tidyverse.org/articles/ma
 
 The pipeline is fully reproducible and can be run again at any time. To ensure consistent results, the [`renv`](https://rstudio.github.io/renv/) package [@usheya] is used to manage and restore the R environment. See the [README](https://github.com/sustentarea/sisvan-nutritional-status/blob/main/README.md) file in the code repository to learn how to run it.
 
-## Set the Environment
+## Set Environment
 
 ### Load Packages
 
@@ -113,14 +113,17 @@ library(anthro)
 library(brandr)
 library(cli)
 library(dplyr)
+library(forcats)
 library(fs)
 library(geobr)
 library(ggplot2)
+library(ggspatial)
 library(groomr) # github.com/danielvartan/groomr
 library(here)
 library(htmltools)
 library(httr2)
 library(janitor)
+library(knitr)
 library(labelled)
 library(lubridate)
 library(nanoparquet)
@@ -128,7 +131,9 @@ library(orbis) # github.com/danielvartan/orbis
 library(osfr)
 library(pal) # gitlab.com/rpkg.dev/pal
 library(parallel)
+library(quartabs)
 library(readr)
+library(scales)
 library(sf)
 library(stringr)
 library(tidyr)
@@ -157,9 +162,7 @@ The `year` variable represent the year of the consolidated [SISVAN](https://sisa
 :::
 
 ```{r}
-#| code-fold: false
-
-year <- 2017
+year <- 2020
 ```
 
 ::: {.callout-note}
@@ -167,8 +170,6 @@ The `age_limits` variable define the age range (in years) of individuals to be i
 :::
 
 ```{r}
-#| code-fold: false
-
 age_limits <- c(0, 4)
 ```
 
@@ -233,7 +234,7 @@ file <-
 ```
 
 ```{r}
-#| eval: false
+#| eval: true
 
 "https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br" |>
   path(
@@ -249,7 +250,7 @@ file <-
 ### Unzip Data
 
 ```{r}
-#| eval: false
+#| eval: true
 
 here(raw_data_dir, file) |>
   unzip(exdir = raw_data_dir)
@@ -258,10 +259,10 @@ here(raw_data_dir, file) |>
 ### Delete Zip Files
 
 ```{r}
-#| eval: false
+#| eval: true
 
 raw_data_dir |>
-  dir_ls(type = file, regexp = "\\.zip$") |>
+  dir_ls(type = "file", regexp = "\\.zip$") |>
   file_delete()
 ```
 
@@ -468,30 +469,6 @@ data <-
 data |> glimpse()
 ```
 
-### Add Municipality Information
-
-```{r}
-data <-
-  data |>
-  rename(municipality_code_6 = municipality_code) |>
-  left_join(
-    municipalities_data |>
-      mutate(
-        municipality_code_6 = municipality_code |>
-          str_sub(1, 6) |>
-          as.integer()
-      ),
-    by = join_by(municipality_code_6),
-    suffix = c(".x", "")
-  ) |>
-  select(-municipality_code_6, -latitude, -longitude) |>
-  relocate(region_code:municipality, .after = date)
-```
-
-```{r}
-data |> glimpse()
-```
-
 ### Standardize Columns
 
 ```{r}
@@ -690,6 +667,30 @@ data <-
 data |> glimpse()
 ```
 
+### Add Municipality Information
+
+```{r}
+data <-
+  data |>
+  rename(municipality_code_6 = municipality_code) |>
+  left_join(
+    municipalities_data |>
+      mutate(
+        municipality_code_6 = municipality_code |>
+          str_sub(1, 6) |>
+          as.integer()
+      ),
+    by = join_by(municipality_code_6),
+    suffix = c(".x", "")
+  ) |>
+  select(-municipality_code_6, -latitude, -longitude) |>
+  relocate(region_code:municipality, .after = date)
+```
+
+```{r}
+data |> glimpse()
+```
+
 ### Arrange Data
 
 ```{r}
@@ -842,21 +843,21 @@ metadata |>
 <!-- To enable uploads, set a `OSF_PAT` environment variable with a valid OSF personal access token. -->
 
 ```{r}
-#| eval: false
+#| eval: true
 #| include: false
 
 Sys.getenv("OSF_PAT") |> osf_auth()
 ```
 
 ```{r}
-#| eval: false
+#| eval: true
 #| include: false
 
 osf_valid_data_id <- "q7m9d"
 ```
 
 ```{r}
-#| eval: false
+#| eval: true
 #| include: false
 
 osf_valid_data_id |>
@@ -874,7 +875,192 @@ osf_valid_data_id |>
   )
 ```
 
-## Check Relative Coverage
+## Explore Data
+
+<!-- Add Quarto Tabs with frequency and descriptive tables for each variable. -->
+<!-- Add column plots -->
+
+### Summarize Frequencies
+
+```{r}
+#| label: Explore Data
+#| code-fold: true
+
+vars <- c(
+  "state",
+  "region",
+  "sex",
+  "age",
+  "ethnicity",
+  "weight_for_age",
+  "weight_for_height",
+  "height_for_age",
+  "bmi_for_age"
+)
+```
+
+```{r}
+#| code-fold: true
+
+panel_tabset_data <- tibble()
+
+for (i in vars) {
+  table <-
+    data |>
+    distinct(id, .data[[i]]) |>
+    group_by(.data[[i]]) |>
+    summarize(n = n(), .groups = "drop") |>
+    arrange(desc(n)) |>
+    mutate(
+      n_cum = cumsum(n),
+      pct = n |>
+        divide_by(sum(n)) |>
+        multiply_by(100),
+      pct_cum = pct |>
+        cumsum() |>
+        round(3),
+      pct = pct |> round(3)
+    ) |>
+    kable()
+
+  panel_tabset_data <-
+    panel_tabset_data |>
+    bind_rows(
+      tibble(
+        label = paste0("`", i, "`"),
+        table = list(table)
+      )
+    )
+}
+```
+
+```{r}
+#| code-fold: true
+#| output: asis
+#| messages: false
+#| warning: false
+
+panel_tabset_data |> render_tabset(label, table)
+```
+
+### Plot Bar Charts
+
+```{r}
+#| code-fold: true
+
+panel_tabset_data <- tibble()
+
+for (i in vars) {
+  plot <-
+    data |>
+    mutate(
+      !!i := as.character(.data[[i]]),
+      !!i := ifelse(
+        str_length(.data[[i]]) > 30,
+        paste0(str_sub(.data[[i]], 1, 27), "..."),
+        .data[[i]]
+      ),
+      !!i := fct_na_value_to_level(.data[[i]], level = "(NA)")
+    ) |>
+    group_by(.data[[i]]) |>
+    summarize(n = n(), .groups = "drop") |>
+    mutate(
+      rel = n |>
+        divide_by(sum(n)) |>
+        round(2),
+      !!i := fct_reorder(.data[[i]], n),
+      !!i := fct_relevel(.data[[i]], "(NA)", after = 0)
+    ) |>
+    ggplot(
+      aes(
+        x = .data[[i]],
+        y = n,
+        labels = percent(rel)
+      )
+    ) +
+    geom_col(fill = get_brand_color("green")) +
+    geom_text(
+      hjust = -0.25,
+      size = 3
+    ) +
+    coord_flip() +
+    scale_y_continuous(
+      expand = expansion(mult = c(0.05, 0.15))
+    ) +
+    labs(x = NULL, y = NULL) +
+    theme(
+      axis.text.y = element_text(size = 8)
+    )
+
+  panel_tabset_data <-
+    panel_tabset_data |>
+    bind_rows(
+      tibble(
+        label = paste0("`", i, "`"),
+        plot = list(plot)
+      )
+    )
+}
+```
+
+```{r}
+#| code-fold: true
+#| output: asis
+#| messages: false
+#| warning: false
+
+panel_tabset_data |> render_tabset(label, plot)
+```
+
+### Plot Histograms
+
+```{r}
+#| code-fold: true
+#| warning: false
+
+panel_tabset_data <- tibble()
+
+for (i in c("weight", "height")) {
+  plot <-
+    data |>
+    drop_na(.data[[i]]) |>
+    ggplot(aes(x = .data[[i]])) +
+    geom_histogram(
+      bins = 30,
+      fill = get_brand_color("gray-d25"),
+      color = get_brand_color("white")
+    ) +
+    # geom_density(
+    #   color = "red",
+    #   linewidth = 1
+    # ) +
+    labs(
+      title = paste("Distribution of", str_to_title(i)),
+      x = str_to_title(i),
+      y = "Frequency"
+    )
+
+  panel_tabset_data <-
+    panel_tabset_data |>
+    bind_rows(
+      tibble(
+        label = paste0("`", i, "`"),
+        plot = list(plot)
+      )
+    )
+}
+```
+
+```{r}
+#| code-fold: true
+#| output: asis
+#| messages: false
+#| warning: false
+
+panel_tabset_data |> render_tabset(label, plot)
+```
+
+## Summarize Relative Coverage
 
 ### Download DATASUS Population Estimates
 
@@ -910,8 +1096,9 @@ osf_raw_data_file <-
   osf_retrieve_node() |>
   osf_ls_files(
     type = "file",
-    pattern = paste0("valid-", year, ".rds")
-  )
+    pattern = paste0(year, ".rds")
+  ) |>
+  filter(str_detect(name, paste0("^", year, "\\.rds$")))
 ```
 
 ```{r}
@@ -938,7 +1125,7 @@ if (!file_exists(datasus_file)) {
   raw_data_dir |>
     dir_ls(
       type = "file",
-      regexp = paste0("valid-", year, "\\.rds$")
+      regexp = paste0(year, "\\.rds$")
     ) |>
     file_move(datasus_file)
 }
@@ -1007,7 +1194,7 @@ data <-
   pop_estimates_data |>
   filter(between(age, age_limits[1], age_limits[2])) |>
   summarize(
-    n = n |> sum(na.rm = TRUE),
+    n = population |> sum(na.rm = TRUE),
     .by = c(
       "year",
       "region_code",
@@ -1161,7 +1348,7 @@ data |>
   cat_lines()
 ```
 
-## Visualize the Relative Coverage
+## Visualize Relative Coverage
 
 ### Plot Histogram of Coverage (%) by Municipality
 
@@ -1173,7 +1360,7 @@ data |>
     aes(y = after_stat(density)),
     bins = 30,
     fill = get_brand_color("gray-d25"),
-    color = get_brand_color("white"),
+    color = get_brand_color("white")
   ) +
   geom_density(
     color = "red",
@@ -1243,7 +1430,6 @@ brand_div_palette <- function(x) {
 
 ```{r}
 plot_data |>
-  drop_na(coverage_per) |>
   st_as_sf() |>
   ggplot(aes(fill = coverage_per)) +
   geom_sf(
@@ -1255,6 +1441,20 @@ plot_data |>
     limits = c(0, 100),
     palette = brand_div_palette,
     na.value = get_brand_color("gray-d25")
+  ) +
+  annotation_scale(
+    aes(),
+    location = "br",
+    style = "tick",
+    height = unit(0.5, "lines")
+  ) +
+  annotation_north_arrow(
+    location = "br",
+    height = unit(2, "lines"),
+    width = unit(2, "lines"),
+    pad_x = unit(0.25, "lines"),
+    pad_y = unit(1.25, "lines"),
+    style = north_arrow_fancy_orienteering
   ) +
   labs(
     title = "SISVAN Coverage by Municipality (%)",
