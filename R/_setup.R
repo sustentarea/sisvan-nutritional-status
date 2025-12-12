@@ -49,10 +49,12 @@ opts_chunk$set(
 options(BRANDR_BRAND_YML = here("_brand.yml"))
 
 brandr_options <- list(
-  "BRANDR_COLOR_SEQUENTIAL" =
-    get_brand_color(c("primary", "secondary")),
-  "BRANDR_COLOR_DIVERGING" =
-    get_brand_color(c("primary", "white", "secondary")),
+  "BRANDR_COLOR_SEQUENTIAL" = get_brand_color(c("primary", "secondary")),
+  "BRANDR_COLOR_DIVERGING" = get_brand_color(c(
+    "primary",
+    "white",
+    "secondary"
+  )),
   "BRANDR_COLOR_QUALITATIVE" = c(
     get_brand_color("primary"),
     get_brand_color("secondary"),
@@ -80,13 +82,6 @@ sysfonts::font_add(
   symbol = NULL
 )
 
-sysfonts::font_add(
-  family = "dm-mono",
-  regular = here("ttf", "dmmono-medium.ttf"),
-  italic = here("ttf", "dmmono-mediumitalic.ttf"),
-  symbol = NULL
-)
-
 showtext::showtext_auto()
 
 # Set `ggplot2` -----
@@ -101,13 +96,15 @@ theme_set(
       ),
       panel.background = element_rect(fill = "transparent"),
       plot.background = element_rect(
-        fill = "transparent", color = NA
+        fill = "transparent",
+        color = NA
       ),
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
       legend.background = element_rect(fill = "transparent"),
       legend.box.background = element_rect(
-        fill = "transparent", color = NA
+        fill = "transparent",
+        color = NA
       ),
       legend.frame = element_blank(),
       legend.ticks = element_line(color = "white")
@@ -116,18 +113,25 @@ theme_set(
 
 # Run `rbbt` -----
 
-## Uncheck the option "Apply title-casing to titles" in Zotero Better BibTeX
-## preferences (Edit > Settings > Better BibTeX > Miscellaneous).
+#' **IMPORTANT**
+#'
+#' Leave this code commented out unless you need to regenerate the bibliography
+#' for Quarto documents from Zotero using Better BibTeX. This code cannot be run
+#' in the CI/CD pipeline because it depends on having Zotero installed locally
+#' with Better BibTeX configured.
+#'
+#' Uncheck the option "Apply title-casing to titles" in Zotero Better BibTeX
+#' preferences (Edit > Settings > Better BibTeX > Miscellaneous).
+#'
+#' (2024-08-25)
+#' This function should work with any version of BetterBibTeX (BBT) for Zotero.
+#' Verify if @wmoldham PR was merged in the `rbbt` package (see issue #47
+#' <https://github.com/paleolimbot/rbbt/issues/47>). If not, install `rbbt` from
+#' @wmoldham fork `remotes::install_github("wmoldham/rbbt", force = TRUE)`.
 
-# (2024-08-25)
-# This function should work with any version of BetterBibTeX (BBT) for Zotero.
-# Verify if @wmoldham PR was merged in the `rbbt` package (see issue #47
-# <https://github.com/paleolimbot/rbbt/issues/47>). If not, install `rbbt`
-# from @wmoldham fork `remotes::install_github("wmoldham/rbbt", force = TRUE)`.
-
-bbt_write_quarto_bib(
-  bib_file = here("references.bib"),
-  dir = c("."),
-  pattern = "\\.qmd$",
-  wd = here()
-)
+# bbt_write_quarto_bib(
+#   bib_file = here("references.bib"),
+#   dir = c("."),
+#   pattern = "\\.qmd$",
+#   wd = here()
+# )

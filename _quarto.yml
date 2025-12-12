@@ -12,11 +12,11 @@ project:
 
 title: >
   A Reproducible Pipeline for Processing SISVAN Microdata on Nutritional Status
-  Monitoring in Brazil (2008-2023)
+  Monitoring in Brazil
 author: "Daniel Vartanian, João Pedro J. Schettino, & Aline M. de Carvalho"
 keyword: >
-  pipelines, nutrition, malnutrition, obesity, data munging, data science,
-  rstats, open data, open science, sisvan, brazil
+  Pipelines, Data Science, Open Data, Open Science, Reproducible Workflows,
+  rstats, Nutrition, Malnutrition, Obesity, SISVAN, Brazil
 date: today
 date-format: long
 
@@ -54,7 +54,7 @@ format:
     toc-location: right
     locale: en
     language: en-us
-    code-fold: true
+    code-fold: false
     code-link: true
     code-tools: false
     df-print: paged
@@ -65,8 +65,8 @@ format:
     csl: csl/english-apa-author-date.csl
     theme: [cosmo, scss/styles.scss, brand]
     other-links:
-      - text: Sustentarea website
-        href: https://www.fsp.usp.br/sustentarea
+      - text: Sustentarea
+        href: https://www.fsp.usp.br/sustentarea/
 
 google-scholar: true
 bibliography: references.bib
