@@ -1,0 +1,48 @@
+cff-version: 1.2.0
+title: >
+  A reproducible pipeline for processing and analyzing SISVAN microdata on
+  nutritional status monitoring in Brazil
+message: >-
+  If you use this software, please cite it using the metadata from this file.
+type: software
+authors:
+  - given-names: Daniel
+    family-names: Vartanian
+    email: danielvartan@proton.me
+    affiliation: University of São Paulo
+    orcid: 'https://orcid.org/0000-0001-7782-759X'
+  - given-names: João Pedro Junqueira
+    family-names: Schettino
+    email: schettino.joaopedro@gmail.com
+    affiliation: Federal University of Juiz de Fora
+    orcid: 'https://orcid.org/0000-0002-4900-5609'
+  - given-names: Aline Martins
+    family-names: Carvalho
+    email: alinenutri@usp.br
+    affiliation: University of São Paulo
+    orcid: 'https://orcid.org/0000-0002-4900-5609'
+abstract: >-
+  A reproducible pipeline for processing and analyzing SISVAN microdata on
+  nutritional status monitoring in Brazil.
+keywords:
+  - Pipelines
+  - Data Science
+  - Open Data
+  - Open Science
+  - Reproducible Workflows
+  - rstats
+  - Nutrition
+  - Malnutrition
+  - Wasting
+  - Stunting
+  - Obesity
+  - SISVAN
+  - Brazil
+identifiers:
+  - type: doi
+    value: 10.17605/OSF.IO/8J94M
+    description: OSF Research Compendium
+repository-code: 'https://github.com/sustentarea/nutritional-status'
+repository: 'https://doi.org/10.17605/OSF.IO/8J94M'
+repository-artifact: 'https://doi.org/10.17605/OSF.IO/Q7M9D'
+license: GPLv3

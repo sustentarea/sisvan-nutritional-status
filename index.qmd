@@ -1,5 +1,5 @@
 ```{r}
-#| label: setup
+#| label: Setup
 #| include: false
 
 library(here)
@@ -8,7 +8,7 @@ source(here("R", "_setup.R"))
 ```
 
 <!-- badges: start -->
-[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![OSF DOI](https://img.shields.io/badge/OSF-10.17605/OSF.IO/8J94M-1284C5.svg)](https://doi.org/10.17605/OSF.IO/8J94M)
 [![License: GPLv3](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/license-CC_BY--NC--SA_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
@@ -16,17 +16,13 @@ source(here("R", "_setup.R"))
 
 ## Overview
 
-This report provides a reproducible pipeline for processing microdata on nutritional status monitoring in Brazil from the Brazilian Food and Nutrition Surveillance System ([SISVAN](https://sisaps.saude.gov.br/sisvan/)), focusing on the nutritional status of children aged 0–5 years in Brazil.
+This report provides a reproducible pipeline for processing and analyzing the microdata on nutritional status monitoring in Brazil from the Brazilian Food and Nutrition Surveillance System ([SISVAN](https://sisaps.saude.gov.br/sisvan/)), focusing on the nutritional status of children aged 0–5 years (i.e., younger than 60 months).
 
 If you are working with other age groups, you will need to adapt the code accordingly. We provide some guidance on how to do this along the report.
 
-For instructions on how to run the pipeline, see the repository [README](https://github.com/sustentarea/sisvan-nutritional-status/blob/main/README.md).
+For instructions on how to run the pipeline, see the repository [README](https://github.com/sustentarea/nutritional-status/blob/main/README.md).
 
-::: {.callout-warning}
-This pipeline is still under development and may not be fully functional.
-
-This warning will be removed once the pipeline is complete.
-:::
+Click [here](https://sustentarea.github.io/nutritional-status-analysis/) to see a report with a longitudinal analysis of the processed data.
 
 ## Problem
 
@@ -53,13 +49,13 @@ You can also retrieve these files directly from [R](https://www.r-project.org/) 
 The data used in this report come from the following sources:
 
 - Brazilian Food and Nutrition Surveillance System ([SISVAN](https://sisaps.saude.gov.br/sisvan/)):
-  - Microdata on nutritional status monitoring in Brazil [@sisvana], the primary dataset for this pipeline. See the dataset [technical note](http://tabnet.datasus.gov.br/cgi/SISVAN/CNV/notas_sisvan.html) (in Portuguese) for details.
+  - Microdata on nutritional status monitoring in Brazil [@sisvana], the primary dataset for this pipeline.
 - Brazilian Institute of Geography and Statistics ([IBGE](https://www.ibge.gov.br/)):
-  - Official codes and metadata for Brazilian municipalities, incorporated via the [`geobr`](https://ipeagit.github.io/geobr/) R package [@pereirab], used to enrich the dataset with geographic information.
+  - Official codes and metadata for Brazilian municipalities, incorporated via the [`geobr`](https://ipeagit.github.io/geobr/) R package [@pereirab], used to normalize IBGE municipality codes and enrich the analysis with geographic information.
 - Department of Informatics of the Brazilian Unified Health System ([DATASUS](https://datasus.saude.gov.br/)):
   - Annual population estimates by municipality, age, and sex for Brazil [@datasusb], used to calculate SISVAN's population coverage.
 
-The DATASUS population estimates used in this pipeline are processed through a separate reproducible workflow, available [here](https://sustentarea.github.io/datasus-pop-estimates/) [@vartanian2025b].
+The [DATASUS](https://datasus.saude.gov.br/) population estimates used in this pipeline are processed through a separate reproducible workflow, available [here](https://sustentarea.github.io/population-estimates/) [@vartanian2025b].
 
 ### Data Munging
 
@@ -79,19 +75,19 @@ Data science workflow created by Wickham, Çetinkaya-Runde, and Grolemund.
 ### Data Validation
 
 ::: {.callout-warning}
-The validation steps described below are specifically designed for children aged 0–5 years (i.e., younger than 60 months). If you are working with older children or adolescents (ages 5–19 years), you should adapt the code accordingly. For these age groups, we recommend using the WHO's `anthroplus` R package [@dirkschumachera].
+The validation steps described below are specifically designed for children aged 0–5 years. If you are working with older children or adolescents (ages 5–19 years), you should adapt the code accordingly. For these age groups, we recommend using the WHO's [`anthroplus`](https://CRAN.R-project.org/package=anthroplus) R package [@dirkschumachera].
 :::
 
 Different validation techniques were used to ensure data quality and reliability:
 
-- Duplicate records were removed by based on unique combinations of the SISVAN identifier (`id`) and assessment date (`date`).
-- Weight and height measurements identified as biologically implausible values (BIVs) according to World Health Organization (WHO) child growth standards [@who2006; @who2008] were set to missing. BIVs were detected by calculating z-scores using the [`anthro_zscores`](https://rdrr.io/cran/anthro/index.html) function from the WHO [`anthro`](https://cran.r-project.org/web/packages/anthro/index.html) R package [@dirkschumacher], based on weight, height, age, and sex. Implausible values were flagged when z-scores exceeded established WHO cutoffs (typically $|z| > 5$, which is an intentionally strict cutoff). For details, see the [function documentation](https://cran.r-project.org/web/packages/anthro/refman/anthro.html#anthro_zscores).
+- Duplicate records were removed based on unique combinations of the SISVAN identifier (`id`) and assessment date (`date`). Only the latest record for each individual on a given date was retained.
+- Weight and height measurements identified as biologically implausible values (BIVs) according to World Health Organization (WHO) child growth standards [@who2006; @who2008] were set to missing. BIVs were detected by calculating z-scores using the [`anthro_zscores`](https://rdrr.io/cran/anthro/man/anthro_zscores.html) function from the WHO [`anthro`](https://CRAN.R-project.org/package=anthro) R package [@dirkschumacher], based on weight, height, age, and sex. Implausible values were flagged when z-scores exceeded established WHO cutoffs (typically $|z| > 5$). For details, see the [function documentation](https://rdrr.io/cran/anthro/man/anthro_zscores.html).
 
 <!-- @silva2023a quality indicators were also used for validation. Refer to the article for more details. -->
 
 ### Data Categorization
 
-The recommended approach is to calculate nutritional status categories based on z-scores, as described in the WHO child growth standards [@who2006, Section C]. However, because the SISVAN data provide age only in years (rather than days or months, as required for accurate classification), this would introduce an unacceptably high classification error. Therefore, we decided to use the nutritional status categories already present in the microdata, but exclude values previously identified as biologically implausible values (BIVs).
+Nutritional status categories are ideally determined using z-scores, as recommended by the WHO child growth standards [@who2006, Section C]. However, SISVAN data report age only in years, rather than in days or months as required for accurate z-score calculation. This limitation introduces substantial classification error if z-scores are computed directly. Therefore, we use the nutritional status categories already provided in the SISVAN microdata and set these categories to missing when biologically implausible values (BIVs) were identified.
 
 ### Code Style
 
@@ -99,7 +95,7 @@ The Tidyverse [Tidy Tools Manifesto](https://tidyverse.tidyverse.org/articles/ma
 
 ### Reproducibility
 
-The pipeline is fully reproducible and can be run again at any time. To ensure consistent results, the [`renv`](https://rstudio.github.io/renv/) package [@usheya] is used to manage and restore the R environment. See the [README](https://github.com/sustentarea/sisvan-nutritional-status/blob/main/README.md) file in the code repository to learn how to run it.
+The pipeline is fully reproducible and can be run again at any time. To ensure consistent results, the [`renv`](https://rstudio.github.io/renv/) package [@usheya] is used to manage and restore the R environment. See the [README](https://github.com/sustentarea/nutritional-status/blob/main/README.md) file in the code repository to learn how to run it.
 
 ## Set Environment
 
@@ -133,6 +129,7 @@ library(pal) # gitlab.com/rpkg.dev/pal
 library(parallel)
 library(quartabs)
 library(readr)
+library(rutils) # github.com/danielvartan/rutils
 library(scales)
 library(sf)
 library(stringr)
@@ -162,7 +159,7 @@ The `year` variable represent the year of the consolidated [SISVAN](https://sisa
 :::
 
 ```{r}
-year <- 2020
+year <- 2023
 ```
 
 ::: {.callout-note}
@@ -170,7 +167,7 @@ The `age_limits` variable define the age range (in years) of individuals to be i
 :::
 
 ```{r}
-age_limits <- c(0, 4)
+age_limits <- c(0, 4) # == Less than 5 years
 ```
 
 ::: {.callout-note}
@@ -213,6 +210,87 @@ municipalities_data <- brazil_municipality(year = year)
 municipalities_data |> glimpse()
 ```
 
+## Download DATASUS Population Estimates
+
+::: {.callout-note}
+See the [Source of Data](#source-of-data) section for more information.
+:::
+
+### List Files
+
+```{r}
+#| label: Download DATASUS Population Estimates
+
+datasus_file_pattern <-
+  "datasus-population-estimates-" |>
+  paste0(year)
+```
+
+```{r}
+datasus_file <-
+  raw_data_dir |>
+  here(paste0(datasus_file_pattern, ".rds"))
+```
+
+```{r}
+osf_raw_data_id <- "h3pyd"
+```
+
+```{r}
+osf_raw_data_file <-
+  osf_raw_data_id |>
+  osf_retrieve_node() |>
+  osf_ls_files(
+    type = "file",
+    pattern = paste0(year, ".rds")
+  ) |>
+  filter(str_detect(name, paste0("^", year, "\\.rds$")))
+```
+
+```{r}
+osf_raw_data_file
+```
+
+### Download Data
+
+```{r}
+osf_raw_data_file |>
+  osf_download(
+    path = raw_data_dir,
+    conflicts = "overwrite"
+  ) |>
+  pull(local_path)
+```
+
+### Rename File
+
+```{r}
+if (file_exists(datasus_file)) {
+  datasus_file |> file_delete()
+}
+```
+
+```{r}
+raw_data_dir |>
+  dir_ls(
+    type = "file",
+    regexp = paste0(year, "\\.rds$")
+  ) |>
+  file_move(datasus_file)
+```
+
+## Import DATASUS Population Estimates
+
+```{r}
+#| label: Import DATASUS Population Estimates
+
+population_estimates_data <- datasus_file |> read_rds()
+```
+
+```{r}
+population_estimates_data |> glimpse()
+```
+
 ## Download SISVAN Microdata on Nutritional Status
 
 ::: {.callout-note}
@@ -234,7 +312,7 @@ file <-
 ```
 
 ```{r}
-#| eval: true
+#| eval: false
 
 "https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br" |>
   path(
@@ -250,7 +328,7 @@ file <-
 ### Unzip Data
 
 ```{r}
-#| eval: true
+#| eval: false
 
 here(raw_data_dir, file) |>
   unzip(exdir = raw_data_dir)
@@ -259,7 +337,7 @@ here(raw_data_dir, file) |>
 ### Delete Zip Files
 
 ```{r}
-#| eval: true
+#| eval: false
 
 raw_data_dir |>
   dir_ls(type = "file", regexp = "\\.zip$") |>
@@ -478,29 +556,29 @@ data <-
     sex = sex |>
       as.character() |>
       case_match(
-        "F" ~ "female",
-        "M" ~ "male"
+        "F" ~ "Female",
+        "M" ~ "Male"
       ) |>
       factor(
-        levels = c("male", "female"),
+        levels = c("Male", "Female"),
         ordered = FALSE
       ),
     ethnicity = ethnicity |>
       as.character() |>
       case_match(
-        "01" ~ "white",
-        "02" ~ "black",
-        "03" ~ "yellow",
-        "04" ~ "brown",
-        "05" ~ "indigenous"
+        "01" ~ "White",
+        "02" ~ "Black",
+        "03" ~ "Yellow",
+        "04" ~ "Brown",
+        "05" ~ "Indigenous"
       ) |>
       factor(
         levels = c(
-          "white",
-          "black",
-          "yellow",
-          "brown",
-          "indigenous"
+          "White",
+          "Black",
+          "Yellow",
+          "Brown",
+          "Indigenous"
         ),
         ordered = FALSE
       ),
@@ -598,11 +676,7 @@ data |> glimpse()
 data <-
   data |>
   arrange(desc(date)) |>
-  distinct(
-    id,
-    date,
-    .keep_all = TRUE
-  )
+  distinct(id, date, .keep_all = TRUE)
 ```
 
 ```{r}
@@ -667,7 +741,7 @@ data <-
 data |> glimpse()
 ```
 
-### Add Municipality Information
+### Fix Municipality Code
 
 ```{r}
 data <-
@@ -679,12 +753,12 @@ data <-
         municipality_code_6 = municipality_code |>
           str_sub(1, 6) |>
           as.integer()
-      ),
-    by = join_by(municipality_code_6),
-    suffix = c(".x", "")
+      ) |>
+      select(municipality_code, municipality_code_6),
+    by = join_by(municipality_code_6)
   ) |>
-  select(-municipality_code_6, -latitude, -longitude) |>
-  relocate(region_code:municipality, .after = date)
+  select(-municipality_code_6) |>
+  relocate(municipality_code, .after = date)
 ```
 
 ```{r}
@@ -722,22 +796,35 @@ metadata <-
     list(
       id = "Unique identifier for the individual",
       date = "Date of the individual's nutritional assessment",
-      region_code = "IBGE region code",
-      region = "Region name",
-      state_code = "IBGE state code",
-      state = "State name",
-      federal_unit = "Federal unit abbreviation",
-      municipality_code = "IBGE municipality code",
-      municipality = "Municipality name",
+      municipality_code = paste0(
+        "Institute of Geography and Statistics (IBGE) code of the ",
+        "municipality where the assessment was performed"
+      ),
+      cnes = paste0(
+        "National Registry of Health Establishments (CNES) code of the ",
+        "health facility where the assessment was performed"
+      ),
       sex = "Sex of the individual",
       age = "Age of the individual in years",
       ethnicity = "Self-reported ethnicity/race or color of the individual",
       weight = "Weight of the individual in kilograms",
       height = "Height of the individual in centimeters",
-      weight_for_age = "Nutritional status classification (children 0–5) based on weight-for-age",
-      weight_for_height = "Nutritional status classification (children 0–5) based on weight-for-height",
-      height_for_age = "Nutritional status classification (children 0–10) based on height-for-age",
-      bmi_for_age = "Nutritional status classification (children 0–10) based on BMI-for-age"
+      weight_for_age = paste0(
+        "Nutritional status classification (children 0–5) based on ",
+        "weight-for-age"
+      ),
+      weight_for_height = paste0(
+        "Nutritional status classification (children 0–5) based on ",
+        "weight-for-height"
+      ),
+      height_for_age = paste0(
+        "Nutritional status classification (children 0–10) based on ",
+        "height-for-age"
+      ),
+      bmi_for_age = paste0(
+        "Nutritional status classification (children 0–10) based on ",
+        "BMI-for-age"
+      )
     )
   ) |>
   generate_dictionary(details = "full") |>
@@ -771,6 +858,8 @@ The processed data are available in [`csv`](https://en.wikipedia.org/wiki/Comma-
 ### Write Data
 
 ```{r}
+#| label: Write Data
+
 valid_file_pattern <-
   year |>
   paste0(
@@ -843,24 +932,24 @@ metadata |>
 <!-- To enable uploads, set a `OSF_PAT` environment variable with a valid OSF personal access token. -->
 
 ```{r}
-#| eval: true
+#| eval: false
 #| include: false
 
 Sys.getenv("OSF_PAT") |> osf_auth()
 ```
 
 ```{r}
-#| eval: true
+#| eval: false
 #| include: false
 
-osf_valid_data_id <- "q7m9d"
+osf_data_id <- "q7m9d"
 ```
 
 ```{r}
-#| eval: true
+#| eval: false
 #| include: false
 
-osf_valid_data_id |>
+osf_data_id |>
   osf_retrieve_node() |>
   osf_upload(
     path = c(
@@ -877,18 +966,17 @@ osf_valid_data_id |>
 
 ## Explore Data
 
-<!-- Add Quarto Tabs with frequency and descriptive tables for each variable. -->
-<!-- Add column plots -->
-
 ### Summarize Frequencies
+
+::: {.callout-important}
+Some SISVAN data may show discrepancies when compared to official population estimates. For example, the reported number of children under 5 classified as *yellow* in 2023 appears unusually high. If you notice such inconsistencies, check the [SISVAN web reports](https://sisaps.saude.gov.br/sisvan/relatoriopublico/) to confirm before reporting an issue.
+:::
 
 ```{r}
 #| label: Explore Data
 #| code-fold: true
 
 vars <- c(
-  "state",
-  "region",
   "sex",
   "age",
   "ethnicity",
@@ -907,10 +995,19 @@ panel_tabset_data <- tibble()
 for (i in vars) {
   table <-
     data |>
+    arrange(desc(.data[[i]])) |>
     distinct(id, .data[[i]]) |>
     group_by(.data[[i]]) |>
     summarize(n = n(), .groups = "drop") |>
     arrange(desc(n)) |>
+    mutate(
+      !!i := .data[[i]] |>
+        as.factor() |>
+        fct_na_value_to_level(level = "(NA)") |>
+        fct_reorder(n) |>
+        fct_relevel("(NA)", after = 0)
+    ) |>
+    arrange(desc(.data[[i]])) |>
     mutate(
       n_cum = cumsum(n),
       pct = n |>
@@ -919,7 +1016,17 @@ for (i in vars) {
       pct_cum = pct |>
         cumsum() |>
         round(3),
-      pct = pct |> round(3)
+      pct = pct |> round(3),
+      across(
+        .cols = where(is.numeric),
+        .fns = \(x) prettyNum(x, big.mark = ",", decimal.mark = ".")
+      )
+    ) |>
+    rename(
+      N = n,
+      `N (Cumulative)` = n_cum,
+      Percent = pct,
+      `Percent (Cumulative)` = pct_cum
     ) |>
     kable()
 
@@ -945,6 +1052,10 @@ panel_tabset_data |> render_tabset(label, table)
 
 ### Plot Bar Charts
 
+::: {.callout-important}
+Some SISVAN data may show discrepancies when compared to official population estimates. For example, the reported number of children under 5 classified as *yellow* in 2023 appears unusually high. If you notice such inconsistencies, check the [SISVAN web reports](https://sisaps.saude.gov.br/sisvan/relatoriopublico/) to confirm before reporting an issue.
+:::
+
 ```{r}
 #| code-fold: true
 
@@ -959,8 +1070,8 @@ for (i in vars) {
         str_length(.data[[i]]) > 30,
         paste0(str_sub(.data[[i]], 1, 27), "..."),
         .data[[i]]
-      ),
-      !!i := fct_na_value_to_level(.data[[i]], level = "(NA)")
+      ) |>
+        fct_na_value_to_level(level = "(NA)")
     ) |>
     group_by(.data[[i]]) |>
     summarize(n = n(), .groups = "drop") |>
@@ -968,8 +1079,9 @@ for (i in vars) {
       rel = n |>
         divide_by(sum(n)) |>
         round(2),
-      !!i := fct_reorder(.data[[i]], n),
-      !!i := fct_relevel(.data[[i]], "(NA)", after = 0)
+      !!i := .data[[i]] |>
+        fct_reorder(n) |>
+        fct_relevel("(NA)", after = 0)
     ) |>
     ggplot(
       aes(
@@ -1012,6 +1124,82 @@ for (i in vars) {
 panel_tabset_data |> render_tabset(label, plot)
 ```
 
+### Summarize Descriptive Statistics
+
+```{r}
+#| code-fold: true
+
+vars <- c(
+  "date",
+  "weight",
+  "height"
+)
+```
+
+```{r}
+#| code-fold: true
+
+panel_tabset_data <- tibble()
+
+for (i in vars) {
+  table <-
+    data |>
+    arrange(desc(.data[[i]])) |>
+    distinct(id, .data[[i]]) |>
+    stats_summary(i) |>
+    mutate(
+      name = c(
+        "Class",
+        "N",
+        "N (Without Missing)",
+        "N (Missing)",
+        "Mean",
+        "Variance",
+        "Standard Deviation",
+        "Minimum",
+        "1st Quartile (Q1)",
+        "Median",
+        "3rd Quartile (Q3)",
+        "Maximum",
+        "Interquartile Range (IQR)",
+        "Range",
+        "Skewness",
+        "Kurtosis"
+      ),
+      value = if_else(
+        !str_detect(value, "\\d{4}-\\d{2}-\\d{2}"),
+        value |>
+          prettyNum(big.mark = ",", decimal.mark = ".") |>
+          str_trim(),
+        value
+      )
+    ) |>
+    rename(
+      Name = name,
+      Value = value
+    ) |>
+    kable()
+
+  panel_tabset_data <-
+    panel_tabset_data |>
+    bind_rows(
+      tibble(
+        label = paste0("`", i, "`"),
+        table = list(table)
+      )
+    )
+}
+```
+
+```{r}
+#| code-fold: true
+#| output: asis
+#| messages: false
+#| warning: false
+
+panel_tabset_data |> render_tabset(label, table)
+```
+
 ### Plot Histograms
 
 ```{r}
@@ -1020,11 +1208,16 @@ panel_tabset_data |> render_tabset(label, plot)
 
 panel_tabset_data <- tibble()
 
-for (i in c("weight", "height")) {
+for (i in vars) {
   plot <-
     data |>
-    drop_na(.data[[i]]) |>
-    ggplot(aes(x = .data[[i]])) +
+    tidyr::drop_na(all_of(i)) |>
+    ggplot(
+      aes(
+        x = .data[[i]],
+        y = after_stat(count)
+      )
+    ) +
     geom_histogram(
       bins = 30,
       fill = get_brand_color("gray-d25"),
@@ -1035,9 +1228,17 @@ for (i in c("weight", "height")) {
     #   linewidth = 1
     # ) +
     labs(
-      title = paste("Distribution of", str_to_title(i)),
+      title = ifelse(
+        i == "date",
+        paste("Distribution of", str_to_title(i), "of Nutritional Assessments"),
+        paste("Distribution of", str_to_title(i))
+      ),
       x = str_to_title(i),
       y = "Frequency"
+    ) +
+    theme(
+      axis.text.x = element_text(margin = margin(0, 0, 10, 0)),
+      axis.text.y = element_text(margin = margin(0, 0, 0, 20))
     )
 
   panel_tabset_data <-
@@ -1060,86 +1261,7 @@ for (i in c("weight", "height")) {
 panel_tabset_data |> render_tabset(label, plot)
 ```
 
-## Summarize Relative Coverage
-
-### Download DATASUS Population Estimates
-
-::: {.callout-note}
-As described in the Methods section, the population estimates were obtained from the [DATASUS](https://datasus.saude.gov.br/) platform, which provides annual data by municipality, age, and sex for Brazil from 2000 to 2024 [@datasusb].
-
-The DATASUS data used in this pipeline are processed and validated through a separate reproducible pipeline, available [here](https://sustentarea.github.io/datasus-pop-estimates/) [@vartanian2025b]. The datasets are downloaded directly from [OSF](https://osf.io/).
-:::
-
-#### List Files
-
-```{r}
-#| label: Check Relative Coverage
-
-datasus_file_pattern <-
-  "datasus-pop-estimates-" |>
-  paste0(year)
-```
-
-```{r}
-datasus_file <-
-  raw_data_dir |>
-  here(paste0(datasus_file_pattern, ".rds"))
-```
-
-```{r}
-osf_raw_data_id <- "h3pyd"
-```
-
-```{r}
-osf_raw_data_file <-
-  osf_raw_data_id |>
-  osf_retrieve_node() |>
-  osf_ls_files(
-    type = "file",
-    pattern = paste0(year, ".rds")
-  ) |>
-  filter(str_detect(name, paste0("^", year, "\\.rds$")))
-```
-
-```{r}
-osf_raw_data_file
-```
-
-#### Download Data
-
-```{r}
-if (!file_exists(datasus_file)) {
-  osf_raw_data_file |>
-    osf_download(
-      path = raw_data_dir,
-      conflicts = "overwrite"
-    ) |>
-    pull(local_path)
-}
-```
-
-#### Rename File
-
-```{r}
-if (!file_exists(datasus_file)) {
-  raw_data_dir |>
-    dir_ls(
-      type = "file",
-      regexp = paste0(year, "\\.rds$")
-    ) |>
-    file_move(datasus_file)
-}
-```
-
-### Import DATASUS Population Estimates
-
-```{r}
-pop_estimates_data <- datasus_file |> read_rds()
-```
-
-```{r}
-pop_estimates_data |> glimpse()
-```
+## Check Relative Coverage
 
 ### Transform Data
 
@@ -1150,6 +1272,8 @@ As described in @silva2023a[p. 4], to calculate SISVAN's total resident populati
 :::
 
 ```{r}
+#| code-fold: true
+
 data <-
   data |>
   mutate(year = year(date)) |>
@@ -1159,12 +1283,16 @@ data <-
 ```
 
 ```{r}
+#| code-fold: true
+
 data |> glimpse()
 ```
 
 #### Summarize Data by Year
 
 ```{r}
+#| code-fold: true
+
 data <-
   data |>
   summarize(
@@ -1174,31 +1302,29 @@ data <-
     mean_height = height |> mean(na.rm = TRUE),
     .by = c(
       "year",
-      "region_code",
-      "state_code",
       "municipality_code"
     )
   )
 ```
 
 ```{r}
-#| code-fold: false
+#| code-fold: true
 
 data |> glimpse()
 ```
 
-#### Calculate Population Estimates
+#### Add Population Estimates
 
 ```{r}
+#| code-fold: true
+
 data <-
-  pop_estimates_data |>
+  population_estimates_data |>
   filter(between(age, age_limits[1], age_limits[2])) |>
   summarize(
     n = population |> sum(na.rm = TRUE),
     .by = c(
       "year",
-      "region_code",
-      "state_code",
       "municipality_code"
     )
   ) |>
@@ -1206,8 +1332,6 @@ data <-
     data,
     by = c(
       "year",
-      "region_code",
-      "state_code",
       "municipality_code"
     )
   ) |>
@@ -1216,7 +1340,30 @@ data <-
 ```
 
 ```{r}
-#| code-fold: false
+#| code-fold: true
+
+data |> glimpse()
+```
+
+#### Add Municipality Data
+
+```{r}
+#| code-fold: true
+
+data <-
+  data |>
+  left_join(
+    municipalities_data,
+    by = join_by(municipality_code),
+    suffix = c(".x", "")
+  ) |>
+  select(-latitude, -longitude) |>
+  relocate(region_code:municipality, .after = year) |>
+  relocate(municipality, .after = municipality_code)
+```
+
+```{r}
+#| code-fold: true
 
 data |> glimpse()
 ```
@@ -1228,7 +1375,7 @@ The population value used here is an estimate. If the SISVAN coverage for a muni
 :::
 
 ```{r}
-#| code-fold: false
+#| code-fold: true
 
 data <-
   data |>
@@ -1241,7 +1388,7 @@ data <-
 ```
 
 ```{r}
-#| code-fold: false
+#| code-fold: true
 
 data |> glimpse()
 ```
@@ -1249,47 +1396,48 @@ data |> glimpse()
 ### Calculate Relative Coverage
 
 ```{r}
+#| code-fold: true
+
 data <-
   data |>
   mutate(
-    coverage_per = coverage |>
+    coverage_pct = coverage |>
       divide_by(population) |>
       multiply_by(100)
   ) |>
-  relocate(coverage_per, .after = coverage)
+  relocate(coverage_pct, .after = coverage)
 ```
 
 ```{r}
+#| code-fold: true
+
 data |> glimpse()
 ```
 
 ### Arrange Data
 
 ```{r}
+#| code-fold: true
+
 data <-
   data |>
   arrange(
     year,
-    region_code,
-    state_code,
     municipality_code
   )
 ```
 
 ```{r}
-#| code-fold: false
+#| code-fold: true
 
 data |> glimpse()
 ```
 
-### Check Relative Coverage by Region
-
-::: {.callout-note}
-The coverage observed here is slightly lower than that reported in @silva2023a[Table 2]. This difference may be explained by the use of different data sources (Fundação Oswaldo Cruz (Fiocruz) vs. OpenDataSUS).
-:::
+### Tabulate Relative Coverage by Region
 
 ```{r}
 #| output: asis
+#| code-fold: true
 
 data |>
   mutate(
@@ -1302,25 +1450,31 @@ data |>
   ) |>
   slice(c(1, 2, 5, 3, 4)) |>
   mutate(
-    coverage_per = coverage |>
+    coverage_pct = coverage |>
       divide_by(population) |>
       multiply_by(100) |>
-      round(3)
+      round(3),
+    across(
+      .cols = where(is.numeric),
+      .fns = \(x) prettyNum(x, big.mark = ",", decimal.mark = ".")
+    )
   ) |>
+  arrange(desc(coverage_pct)) |>
   rename(
     Region = region,
     Population = population,
     `SISVAN Coverage` = coverage,
-    `SISVAN Coverage (%)` = coverage_per
+    `SISVAN Coverage (%)` = coverage_pct
   ) |>
   pipe_table() |>
   cat_lines()
 ```
 
-### Checking Relative Coverage by State
+### Tabulate Relative Coverage by State
 
 ```{r}
 #| output: asis
+#| code-fold: true
 
 data |>
   mutate(
@@ -1333,29 +1487,34 @@ data |>
   ) |>
   arrange(state) |>
   mutate(
-    coverage_per = coverage |>
+    coverage_pct = coverage |>
       divide_by(population) |>
       multiply_by(100) |>
-      round(3)
+      round(3),
+    across(
+      .cols = where(is.numeric),
+      .fns = \(x) prettyNum(x, big.mark = ",", decimal.mark = ".")
+    )
   ) |>
+  arrange(desc(coverage_pct)) |>
   rename(
     State = state,
     Population = population,
     `SISVAN Coverage` = coverage,
-    `SISVAN Coverage (%)` = coverage_per
+    `SISVAN Coverage (%)` = coverage_pct
   ) |>
   pipe_table() |>
   cat_lines()
 ```
 
-## Visualize Relative Coverage
-
-### Plot Histogram of Coverage (%) by Municipality
+### Plot Histogram by Municipality
 
 ```{r}
+#| code-fold: true
+
 data |>
-  drop_na(coverage_per) |>
-  ggplot(aes(x = coverage_per)) +
+  tidyr::drop_na(coverage_pct) |>
+  ggplot(aes(x = coverage_pct)) +
   geom_histogram(
     aes(y = after_stat(density)),
     bins = 30,
@@ -1367,19 +1526,21 @@ data |>
     linewidth = 1
   ) +
   labs(
-    title = "SISVAN Coverage by Municipality (%)",
+    title = "SISVAN Coverage by Municipality (%) (Ages 0-5)",
     subtitle = paste0("Year: ", year),
     x = "Coverage (%)",
     y = "Density",
-    caption = "Source: SISVAN"
+    caption = "Source: SISVAN."
   )
 ```
 
-### Plot Map of Coverage (%) by Municipality
+### Plot Map by Municipality
 
 #### Set Shape
 
 ```{r}
+#| code-fold: true
+
 shape <-
   read_municipality(
     year = year |>
@@ -1392,6 +1553,8 @@ shape <-
 #### Prepare Plot Data
 
 ```{r}
+#| code-fold: true
+
 plot_data <-
   data |>
   left_join(
@@ -1401,15 +1564,17 @@ plot_data <-
   rename(geometry = geom) |>
   select(
     municipality_code,
-    coverage_per,
+    coverage_pct,
     geometry
   ) |>
-  drop_na(coverage_per)
+  tidyr::drop_na(coverage_pct)
 ```
 
 #### Plot Data
 
 ```{r}
+#| code-fold: true
+
 brand_div_palette <- function(x) {
   brandr:::make_color_ramp(
     n = x,
@@ -1429,9 +1594,11 @@ brand_div_palette <- function(x) {
 ```
 
 ```{r}
+#| code-fold: true
+
 plot_data |>
   st_as_sf() |>
-  ggplot(aes(fill = coverage_per)) +
+  ggplot(aes(fill = coverage_pct)) +
   geom_sf(
     color = get_brand_color("gray"),
     linewidth = 0.05
@@ -1457,10 +1624,10 @@ plot_data |>
     style = north_arrow_fancy_orienteering
   ) +
   labs(
-    title = "SISVAN Coverage by Municipality (%)",
+    title = "SISVAN Coverage by Municipality (%) (Ages 0-5)",
     subtitle = paste0("Year: ", year),
     fill = NULL,
-    caption = "Source: SISVAN"
+    caption = "Source: SISVAN."
   )
 ```
 
@@ -1472,19 +1639,19 @@ When using this data, you must also cite the original data sources.
 
 To cite this work, please use the following format:
 
-Vartanian, D., Schettino, J. P. J., & Carvalho, A. M. (2025). *A reproducible pipeline for processing SISVAN microdata on nutritional status monitoring in Brazil* \[Computer software\]. Sustentarea Research and Extension Group, University of São Paulo. <https://sustentarea.github.io/sisvan-nutritional-status>
+Vartanian, D., Schettino, J. P. J., & Carvalho, A. M. (2025). *A reproducible pipeline for processing and analyzing SISVAN microdata on nutritional status monitoring in Brazil* \[Computer software\]. Sustentarea Research and Extension Group, University of São Paulo. <https://sustentarea.github.io/nutritional-status>
 
 A BibLaTeX entry for LaTeX users is:
 
 ```
 @software{vartanian2025,
-  title = {A reproducible pipeline for processing SISVAN microdata on nutritional status monitoring in Brazil},
+  title = {A reproducible pipeline for processing and analyzing SISVAN microdata on nutritional status monitoring in Brazil},
   author = {{Daniel Vartanian} and {João Pedro Junqueira Schettino} and {Aline Martins de Carvalho}},
   year = {2025},
   address = {São Paulo},
   institution = {Sustentarea Research and Extension Group, University of São Paulo},
   langid = {en},
-  url = {https://sustentarea.github.io/sisvan-nutritional-status}
+  url = {https://sustentarea.github.io/nutritional-status}
 }
 ```
 
@@ -1530,7 +1697,7 @@ blocks <- list(
     logo_src = "images/sustentarea-icon.svg",
     logo_alt = "Sustentarea Logo",
     logo_width = 100,
-    text = 'This work is part of a research project by the (<a href="https://www.fsp.usp.br/sustentarea/">Sustentarea</a>) Research and Extension Group of the University of São Paulo (<a href="https://usp.br/">USP</a>) titled: <em>Global syndemic: The impact of anthropogenic climate change on the health and nutrition of children under five years old attended by Brazil\'s public health system (SUS)</em>.'
+    text = 'This work is part of a research project by the <a href="https://www.fsp.usp.br/sustentarea/">Sustentarea</a> Research and Extension Group of the University of São Paulo (<a href="https://usp.br/">USP</a>) titled: <em>Global syndemic: The impact of anthropogenic climate change on the health and nutrition of children under five years old attended by Brazil\'s public health system</em>.'
   ),
   list(
     logo_link = "https://www.gov.br/cnpq/",

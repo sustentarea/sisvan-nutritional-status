@@ -3,7 +3,10 @@ library(fs)
 library(groomr) # github.com/danielvartan/groomr
 library(here)
 
-years <- c(2009:2019, 2021:2023)
+# Change `#| eval: false` to `#| eval: true` in all qmd blocks
+# before running this script!
+
+years <- 2008:2023
 
 cli_progress_bar(
   name = "Rendering files",

@@ -1,0 +1,110 @@
+{
+  "@context": "https://w3id.org/codemeta/3.0",
+  "@type": "SoftwareSourceCode",
+  "identifier": "nutritional-status",
+  "dateCreated": "2025-04-30",
+  "applicationCategory": "Pipelines and Workflows",
+  "applicationSubCategory": "Reproducible Research",
+  "name": "A reproducible pipeline for processing and analyzing SISVAN microdata on nutritional status monitoring in Brazil",
+  "author": [
+    {
+      "@type": "Person",
+      "familyName": "Vartanian",
+      "givenName": "Daniel",
+      "email": "danielvartan@proton.me",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "University of São Paulo",
+        "url": "https://www.usp.br"
+      },
+      "@id": "https://orcid.org/0000-0001-7782-759X"
+    },
+    {
+      "@type": "Person",
+      "familyName": "Schettino",
+      "givenName": "João Pedro Junqueira",
+      "email": "schettino.joaopedro@gmail.com",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "Federal University of Juiz de Fora",
+        "url": "https://www.ufjf.br"
+      },
+      "@id": "https://orcid.org/0009-0009-5240-7666"
+    },
+    {
+      "@type": "Person",
+      "familyName": "Carvalho",
+      "givenName": "Aline Martins de",
+      "email": "alinenutri@usp.br",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "University of São Paulo",
+        "url": "https://www.usp.br"
+      },
+      "@id": "https://orcid.org/0000-0002-4900-5609"
+    }
+  ],
+  "funder": [
+    {
+      "@type": "Organization",
+      "name": "Department of Science and Technology of the Secretariat of Science, Technology, and Innovation and of the Health Economic-Industrial Complex (SECTICS) of the Ministry of Health of Brazil",
+      "@id": "https://www.gov.br/saude/pt-br/composicao/sectics/"
+    },
+    {
+      "@type": "Organization",
+      "name": "Conselho Nacional de Desenvolvimento Científico e Tecnológico - Brazil (CNPq)",
+      "@id": "https://www.gov.br/cnpq/"
+    }
+  ],
+  "funding": "CNPq 444588/2023-0",
+  "provider": {
+    "@id": "https://www.fsp.usp.br/sustentarea/",
+    "@type": "Organization",
+    "name": "Sustentarea",
+    "url": "https://www.fsp.usp.br/sustentarea/"
+  },
+  "copyrightHolder": {
+    "@type": "Organization",
+    "name": "Sustentarea",
+    "url": "https://www.fsp.usp.br/sustentarea/"
+  },
+  "maintainer": {
+    "@type": "Person",
+    "familyName": "Vartanian",
+    "givenName": "Daniel",
+    "email": "danielvartan@proton.me",
+    "@id": "https://orcid.org/0000-0001-7782-759X"
+  },
+  "description": "A reproducible pipeline for processing and analyzing SISVAN microdata on nutritional status monitoring in Brazil.",
+  "keywords": [
+    "Pipelines",
+    "Data Science",
+    "Open Data",
+    "Open Science",
+    "Reproducible Workflows",
+    "rstats",
+    "Nutrition",
+    "Malnutrition",
+    "Wasting",
+    "Stunting",
+    "Obesity",
+    "SISVAN",
+    "Brazil"
+  ],
+  "license": "https://www.gnu.org/licenses/gpl-3.0",
+  "codeRepository": "https://github.com/sustentarea/nutritional-status",
+  "issueTracker": "https://github.com/sustentarea/nutritional-status/issues",
+  "relatedLink": [
+    "https://doi.org/10.17605/OSF.IO/8J94M",
+    "https://doi.org/10.17605/OSF.IO/Q7M9D"
+  ],
+  "programmingLanguage": {
+    "@type": "ComputerLanguage",
+    "name": "R",
+    "url": "https://www.r-project.org"
+  },
+  "developmentStatus": "active",
+  "readme": "https://github.com/sustentarea/nutritional-status/blob/main/README.md",
+  "releaseNotes": "https://github.com/sustentarea/nutritional-status/blob/main/NEWS.md",
+  "version": "1.0.0"
+}

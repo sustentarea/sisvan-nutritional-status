@@ -1,7 +1,7 @@
-# sisvan-nutritional-status
+# nutritional-status
 
 <!-- badges: start -->
-[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![OSF DOI](https://img.shields.io/badge/OSF-10.17605/OSF.IO/8J94M-1284C5.svg)](https://doi.org/10.17605/OSF.IO/8J94M)
 [![License: GPLv3](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/license-CC_BY--NC--SA_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
@@ -9,18 +9,15 @@
 
 ## Overview
 
-This repository provides a reproducible pipeline for processing microdata on nutritional status monitoring in Brazil from the Brazilian Food and Nutrition Surveillance System ([SISVAN](https://sisaps.saude.gov.br/sisvan/)), focusing on the nutritional status of children aged 0–5 years in Brazil.
+This repository provides a reproducible pipeline for processing and analyzing the microdata on nutritional status monitoring in Brazil from the Brazilian Food and Nutrition Surveillance System ([SISVAN](https://sisaps.saude.gov.br/sisvan/)), focusing on the nutritional status of children aged 0–5 years (i.e., younger than 60 months).
 
 If you are working with other age groups, you will need to adapt the code accordingly. We provide some guidance on how to do this along the report.
 
-The report is available [here](https://sustentarea.github.io/sisvan-nutritional-status/).
+The report is available [here](https://sustentarea.github.io/nutritional-status/).
 
-> If you find this project useful, please consider giving it a star! &nbsp; [![GitHub Repository Stars](https://img.shields.io/github/stars/sustentarea/sisvan-nutritional-status)](https://github.com/sustentarea/sisvan-nutritional-status/)
+Click [here](https://sustentarea.github.io/nutritional-status-analysis/) to see a report with a longitudinal analysis of the processed data.
 
-> [!WARNING]
-> This pipeline is still under development and may not be fully functional.
->
-> This warning will be removed once the pipeline is complete.
+> If you find this project useful, please consider giving it a star! &nbsp; [![GitHub Repository Stars](https://img.shields.io/github/stars/sustentarea/nutritional-status)](https://github.com/sustentarea/nutritional-status/)
 
 ## Data Availability
 
@@ -62,19 +59,19 @@ These will activate the rendering process, which may take some time depending on
 
 To cite this work, please use the following format:
 
-Vartanian, D., Schettino, J. P. J., & Carvalho, A. M. (2025). *A reproducible pipeline for processing SISVAN microdata on nutritional status monitoring in Brazil* \[Computer software\]. Sustentarea Research and Extension Group, University of São Paulo. <https://sustentarea.github.io/sisvan-nutritional-status>
+Vartanian, D., Schettino, J. P. J., & Carvalho, A. M. (2025). *A reproducible pipeline for processing and analyzing SISVAN microdata on nutritional status monitoring in Brazil* \[Computer software\]. Sustentarea Research and Extension Group, University of São Paulo. <https://sustentarea.github.io/nutritional-status>
 
 A BibLaTeX entry for LaTeX users is:
 
 ```
 @software{vartanian2025,
-  title = {A reproducible pipeline for processing SISVAN microdata on nutritional status monitoring in Brazil},
+  title = {A reproducible pipeline for processing and analyzing SISVAN microdata on nutritional status monitoring in Brazil},
   author = {{Daniel Vartanian} and {João Pedro Junqueira Schettino} and {Aline Martins de Carvalho}},
   year = {2025},
   address = {São Paulo},
   institution = {Sustentarea Research and Extension Group, University of São Paulo},
   langid = {en},
-  url = {https://sustentarea.github.io/sisvan-nutritional-status}
+  url = {https://sustentarea.github.io/nutritional-status}
 }
 ```
 
@@ -106,15 +103,13 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 
 ## Acknowledgments
 
-<br>
-
 <table>
   <tr>
     <td width="30%" align="center" valign="center">
       <a href="https://www.fsp.usp.br/sustentarea/"><img src="images/sustentarea-logo.svg" width="100" alt="Sustentarea Logo"/></a>
     </td>
     <td width="70%" valign="center">
-      This work is part of a research project by the (<a href="https://www.fsp.usp.br/sustentarea/">Sustentarea</a>) Research and Extension Group of the University of São Paulo (<a href="https://usp.br/">USP</a>) titled: <em>Global syndemic: The impact of anthropogenic climate change on the health and nutrition of children under five years old attended by Brazil\'s public health system (SUS)</em>.
+      This work is part of a research project by the <a href="https://www.fsp.usp.br/sustentarea/">Sustentarea</a> Research and Extension Group of the University of São Paulo (<a href="https://usp.br/">USP</a>) titled: <em>Global syndemic: The impact of anthropogenic climate change on the health and nutrition of children under five years old attended by Brazil\'s public health system</em>.
     </td>
   </tr>
 </table>
