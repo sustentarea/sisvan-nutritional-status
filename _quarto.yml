@@ -16,7 +16,8 @@ title: >
 author: "Daniel Vartanian, João Pedro J. Schettino, & Aline M. de Carvalho"
 keyword: >
   Pipelines, Data Science, Open Data, Open Science, Reproducible Workflows,
-  rstats, Nutrition, Malnutrition, Wasting, Stunting, Obesity, SISVAN, Brazil
+  rstats, Nutrition, Nutrition Status, Malnutrition, Wasting, Stunting,
+  Obesity, SISVAN, SUS, Brazil
 date: today
 date-format: long
 

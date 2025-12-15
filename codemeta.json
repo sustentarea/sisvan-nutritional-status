@@ -84,11 +84,13 @@
     "Reproducible Workflows",
     "rstats",
     "Nutrition",
+    "Nutritional Status",
     "Malnutrition",
     "Wasting",
     "Stunting",
     "Obesity",
     "SISVAN",
+    "SUS",
     "Brazil"
   ],
   "license": "https://www.gnu.org/licenses/gpl-3.0",
