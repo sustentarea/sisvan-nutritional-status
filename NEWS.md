@@ -2,7 +2,7 @@
 
 # nutritional-status 1.0.1
 
-- The `renv` package has been added to manage project dependencies.
+- The `renv` package was added to manage project dependencies.
 
 # nutritional-status 1.0.0
 
